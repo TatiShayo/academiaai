@@ -1,0 +1,51 @@
+## AcademiaAI Build Plan
+
+## PHASE 1: STABILIZE
+- [x] Build passes, auth works
+
+## PHASE 2: CORE TOOLS — THE PRODUCT
+- [ ] Landing page: "Your work. Just better." hero, 4 tool cards, before/after demo, pricing
+- [ ] Dashboard: word count processed this month, documents saved, subscription tier, quick tool launcher
+- [ ] TOOL 1 — AI Humanizer (/dashboard/humanize):
+    - Textarea input (paste AI text)
+    - Humanization level slider: Subtle / Balanced / Aggressive
+    - "Humanize" button → POST /api/tools/humanize
+    - Side-by-side output: Original left, Humanized right
+    - AI detection score badge (before vs after, simulated 0-100)
+    - Copy output button, Save to documents button
+- [ ] TOOL 2 — Academic Enhancer (/dashboard/enhance):
+    - Input: paste text + select level (High School / Undergraduate / Masters / PhD)
+    - "Enhance" button → POST /api/tools/enhance
+    - Output: rewritten text with formal vocabulary, better structure, academic tone
+    - Change highlights: show what was changed (before/after diff view)
+- [ ] TOOL 3 — Plagiarism Risk Scanner (/dashboard/plagiarism):
+    - Input: paste text
+    - Analyze button → POST /api/tools/plagiarism-risk
+    - Output: risk score (0-100), flagged sentences highlighted in orange/red, suggestions to rephrase
+    - Note: this is an AI-based RISK estimator, not a real plagiarism database check
+- [ ] TOOL 4 — Citation Generator (/dashboard/citations):
+    - Input: paste a URL, DOI, book title, or author
+    - Select format: APA, MLA, Chicago, Harvard
+    - Generate button → returns formatted citation
+    - Copy button
+- [ ] Documents library: saved processed docs with name, date, word count, which tool used
+- [ ] Document detail: view original + processed version, re-process option
+
+## PHASE 3: PAYMENTS
+- [ ] Pay-per-doc flow: if free tier limit hit → Stripe Payment Link for $5 → unlock one doc
+- [ ] Pro subscription: Stripe checkout → unlimited access
+- [ ] Usage tracking: count docs processed this month per user
+
+## PHASE 4: TESTING
+- [ ] Unit test: humanizer API (mock OpenAI, verify text is transformed)
+- [ ] Unit test: academic enhancer (verify vocabulary level changes)
+- [ ] Unit test: usage limit enforcement (free user hits 3 docs, gets paywall)
+- [ ] E2e: paste text → humanize → copy output
+- [ ] Lighthouse ≥85
+
+## PHASE 5: ADVANCED
+- [ ] Grammar + Style check combined with humanize (one-pass does both)
+- [ ] Bulk upload: process a .docx or .txt file, return processed .docx
+- [ ] Chrome extension stub: landing page section explaining "coming soon" extension
+- [ ] API access (Pro+): users can call the humanizer/enhancer via API key
+- [ ] Leaderboard: "AcademiaAI users have humanized X million words this month" (social proof counter)
