@@ -4,32 +4,32 @@
 - [x] Build passes, auth works
 
 ## PHASE 2: CORE TOOLS — THE PRODUCT
-- [ ] Landing page: "Your work. Just better." hero, 4 tool cards, before/after demo, pricing
-- [ ] Dashboard: word count processed this month, documents saved, subscription tier, quick tool launcher
-- [ ] TOOL 1 — AI Humanizer (/dashboard/humanize):
+- [x] Landing page: "Your work. Just better." hero, 4 tool cards, before/after demo, pricing
+- [x] Dashboard: word count processed this month, documents saved, subscription tier, quick tool launcher
+- [x] TOOL 1 — AI Humanizer (/dashboard/humanize):
     - Textarea input (paste AI text)
     - Humanization level slider: Subtle / Balanced / Aggressive
     - "Humanize" button → POST /api/tools/humanize
     - Side-by-side output: Original left, Humanized right
     - AI detection score badge (before vs after, simulated 0-100)
     - Copy output button, Save to documents button
-- [ ] TOOL 2 — Academic Enhancer (/dashboard/enhance):
+- [x] TOOL 2 — Academic Enhancer (/dashboard/enhance):
     - Input: paste text + select level (High School / Undergraduate / Masters / PhD)
     - "Enhance" button → POST /api/tools/enhance
     - Output: rewritten text with formal vocabulary, better structure, academic tone
     - Change highlights: show what was changed (before/after diff view)
-- [ ] TOOL 3 — Plagiarism Risk Scanner (/dashboard/plagiarism):
+- [x] TOOL 3 — Plagiarism Risk Scanner (/dashboard/plagiarism):
     - Input: paste text
     - Analyze button → POST /api/tools/plagiarism-risk
     - Output: risk score (0-100), flagged sentences highlighted in orange/red, suggestions to rephrase
     - Note: this is an AI-based RISK estimator, not a real plagiarism database check
-- [ ] TOOL 4 — Citation Generator (/dashboard/citations):
+- [x] TOOL 4 — Citation Generator (/dashboard/citations):
     - Input: paste a URL, DOI, book title, or author
     - Select format: APA, MLA, Chicago, Harvard
     - Generate button → returns formatted citation
     - Copy button
-- [ ] Documents library: saved processed docs with name, date, word count, which tool used
-- [ ] Document detail: view original + processed version, re-process option
+- [x] Documents library: saved processed docs with name, date, word count, which tool used
+- [x] Document detail: view original + processed version, re-process option
 
 ## PHASE 3: PAYMENTS
 - [ ] Pay-per-doc flow: if free tier limit hit → Stripe Payment Link for $5 → unlock one doc
