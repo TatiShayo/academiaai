@@ -1,10 +1,25 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDocuments } from "@/lib/documents-provider";
 
 export function DashboardStats() {
   const { documents } = useDocuments();
+  const [plan, setPlan] = useState("Free");
+  const [remaining, setRemaining] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("/api/usage")
+      .then((r) => r.json())
+      .then((data) => {
+        if (!data.error) {
+          setPlan(data.plan === "pro" ? "Pro" : data.plan === "unlocked" ? "Pay-per-doc" : "Free");
+          setRemaining(data.remaining);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const wordsProcessed = documents.reduce((sum, d) => sum + d.wordCount, 0);
   const docsSaved = documents.length;
@@ -38,7 +53,12 @@ export function DashboardStats() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-2xl font-bold">Free</p>
+          <p className="text-2xl font-bold">{plan}</p>
+          {remaining !== null && plan !== "Pro" && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {remaining} document{remaining !== 1 ? "s" : ""} remaining
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>

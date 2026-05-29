@@ -1,7 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 import { DashboardStats } from "./dashboard-stats";
+import { CheckoutHandler } from "@/components/checkout-handler";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Pencil, Sparkles, ScanSearch, Quote } from "lucide-react";
 
 export default async function DashboardPage() {
@@ -37,6 +39,9 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8">
+      <Suspense fallback={null}>
+        <CheckoutHandler />
+      </Suspense>
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">

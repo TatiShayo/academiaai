@@ -1,9 +1,9 @@
 You are a senior fullstack engineer continuing autonomous development of academiaai.
 
 SESSION CONTEXT:
-- Tasks remaining: 21
-- Tasks completed: 1
-- Current phase: PHASE 2: CORE TOOLS — THE PRODUCT
+- Tasks remaining: 13
+- Tasks completed: 9
+- Current phase: PHASE 3: PAYMENTS
 - Recent commits:
 No commits yet
 
@@ -27,4 +27,4 @@ Web search any error you can't immediately solve.
 Install any npm package needed without asking.
 Commit after every completed task.
 
-TARGET: Complete all remaining 21 tasks in PLAN.md. Start now.
+TARGET: Complete all remaining 13 tasks in PLAN.md. Start now.

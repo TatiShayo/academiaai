@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useDocuments } from "@/lib/documents-provider";
 import { Input } from "@/components/ui/input";
+import { UsageGate } from "@/components/usage-gate";
+import { incrementUsage, getRemaining, getLimit } from "@/lib/usage-limits";
 import { Save } from "lucide-react";
 
 export default function HumanizePage() {
@@ -25,12 +27,14 @@ export default function HumanizePage() {
   const [copied, setCopied] = useState(false);
   const [saveName, setSaveName] = useState("");
   const [saved, setSaved] = useState(false);
+  const [paywall, setPaywall] = useState(false);
   const { saveDocument } = useDocuments();
 
   const handleHumanize = async () => {
     if (!text.trim()) return;
     setLoading(true);
     setError("");
+    setPaywall(false);
     try {
       const res = await fetch("/api/tools/humanize", {
         method: "POST",
@@ -38,7 +42,9 @@ export default function HumanizePage() {
         body: JSON.stringify({ text, level }),
       });
       const data = await res.json();
-      if (data.error) {
+      if (res.status === 402 || data.paywall) {
+        setPaywall(true);
+      } else if (data.error) {
         setError(data.error);
       } else {
         setResult(data);

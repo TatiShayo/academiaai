@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { chat } from "@/lib/openai";
+import { checkUsage, trackUsage } from "@/lib/tool-guard";
 
 export async function POST(request: NextRequest) {
+  const usage = await checkUsage();
+  if (usage.error) return usage.error;
+
   const { text } = await request.json();
 
   if (!text || typeof text !== "string") {
@@ -15,6 +19,7 @@ export async function POST(request: NextRequest) {
     ]);
 
     const parsed = JSON.parse(result);
+    await trackUsage(usage.userId);
     return NextResponse.json(parsed);
   } catch {
     return NextResponse.json({

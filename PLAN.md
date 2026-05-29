@@ -32,9 +32,9 @@
 - [x] Document detail: view original + processed version, re-process option
 
 ## PHASE 3: PAYMENTS
-- [ ] Pay-per-doc flow: if free tier limit hit → Stripe Payment Link for $5 → unlock one doc
-- [ ] Pro subscription: Stripe checkout → unlimited access
-- [ ] Usage tracking: count docs processed this month per user
+- [x] Pay-per-doc flow: if free tier limit hit → Stripe Payment Link for $5 → unlock one doc
+- [x] Pro subscription: Stripe checkout → unlimited access
+- [x] Usage tracking: count docs processed this month per user
 
 ## PHASE 4: TESTING
 - [ ] Unit test: humanizer API (mock OpenAI, verify text is transformed)
