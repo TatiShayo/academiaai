@@ -2,7 +2,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Pencil, ScanSearch, Quote, Check } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Sparkles, Pencil, ScanSearch, Quote, Check, Puzzle, Send } from "lucide-react";
 
 export default function Home() {
   return (
@@ -213,6 +214,49 @@ export default function Home() {
               </Link>
             </CardContent>
           </Card>
+        </div>
+      </section>
+
+      {/* Chrome Extension */}
+      <section className="bg-gradient-to-br from-primary/5 to-primary/10 py-24" aria-labelledby="extension-title">
+        <div className="max-w-3xl mx-auto px-4 text-center">
+          <Puzzle className="size-12 mx-auto text-primary mb-4" />
+          <h2 id="extension-title" className="text-3xl font-bold mb-4">
+            Coming Soon: AcademiaAI Extension
+          </h2>
+          <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
+            Humanize text and check grammar directly in Google Docs, Word Online, and any text editor — no copy-paste needed.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left max-w-xl mx-auto mb-8">
+            {[
+              "One-click humanization in any text field",
+              "Grammar & style check while you type",
+              "Works with Google Docs, Word Online, Notion",
+              "All four tools at your fingertips",
+            ].map((f) => (
+              <div key={f} className="flex items-start gap-2">
+                <Check className="size-4 text-green-500 mt-0.5 shrink-0" />
+                <span className="text-sm">{f}</span>
+              </div>
+            ))}
+          </div>
+          <form action="/api/extension-waitlist" method="post" className="flex gap-2 max-w-md mx-auto">
+            <Input
+              name="email"
+              type="email"
+              placeholder="Enter your email for early access"
+              required
+              className="h-10"
+              aria-label="Email for extension waitlist"
+            />
+            <Button type="submit" size="sm" className="h-10 shrink-0">
+              <Send className="size-4 mr-1.5" />
+              Notify me
+            </Button>
+          </form>
+          <p className="text-xs text-muted-foreground mt-3">
+            No spam. We&apos;ll email you once when the extension launches.
+          </p>
         </div>
       </section>
 
