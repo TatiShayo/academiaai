@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useDocuments } from "@/lib/documents-provider";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DiffView } from "@/components/diff-view";
 import { Save } from "lucide-react";
 
 export default function EnhancePage() {
@@ -69,15 +71,6 @@ export default function EnhancePage() {
     setTimeout(() => setSaved(false), 3000);
   };
 
-  const highlightChanges = (text: string, changes: { original: string; enhanced: string }[]) => {
-    if (!changes.length) return text;
-    let result = text;
-    changes.forEach(({ original, enhanced }) => {
-      result = result.replace(original, `<mark class="bg-green-200 dark:bg-green-900 px-0.5 rounded">${enhanced}</mark>`);
-    });
-    return result;
-  };
-
   return (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto">
       <div>
@@ -123,57 +116,39 @@ export default function EnhancePage() {
         </CardContent>
       </Card>
 
+      {loading && (
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-5 w-32" />
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-11/12" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-5/6" />
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-8 w-28 mt-2" />
+          </CardContent>
+        </Card>
+      )}
+
       {result && (
         <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Original</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                  {result.original}
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2">
-                  Enhanced
-                  <Badge variant="secondary" className="text-xs">{level}</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-3">
-                <p className="text-sm leading-relaxed whitespace-pre-wrap"
-                  dangerouslySetInnerHTML={{
-                    __html: highlightChanges(result.enhanced, result.changes),
-                  }}
-                />
-                <Button variant="outline" size="sm" className="w-fit" onClick={() => handleCopy(result.enhanced)}>
-                  {copied ? "Copied!" : "Copy output"}
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          {result.changes.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Changes made</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col gap-1 text-sm">
-                  {result.changes.map((change, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <span className="text-muted-foreground line-through">{change.original}</span>
-                      <span>→</span>
-                      <span className="text-green-600 dark:text-green-400 font-medium">{change.enhanced}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center justify-between">
+                Enhanced
+                <Badge variant="secondary" className="text-xs">{level}</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3">
+              <DiffView original={result.original} processed={result.enhanced} />
+              <Button variant="outline" size="sm" className="w-fit" onClick={() => handleCopy(result.enhanced)}>
+                {copied ? "Copied!" : "Copy output"}
+              </Button>
+            </CardContent>
+          </Card>
 
           <Card>
             <CardContent className="py-4 flex items-center gap-3">

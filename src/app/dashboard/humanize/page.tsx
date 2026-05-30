@@ -11,6 +11,8 @@ import { useDocuments } from "@/lib/documents-provider";
 import { Input } from "@/components/ui/input";
 import { UsageGate } from "@/components/usage-gate";
 import { incrementUsage, getRemaining, getLimit } from "@/lib/usage-limits";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DiffView } from "@/components/diff-view";
 import { Save, CheckCircle, Sparkles, Upload, Download, FileText, X } from "lucide-react";
 
 type Mode = "humanize" | "grammar";
@@ -278,6 +280,22 @@ export default function HumanizePage() {
         </CardContent>
       </Card>
 
+      {loading && (
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-5 w-32" />
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-11/12" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-5/6" />
+            <Skeleton className="h-4 w-2/3" />
+          </CardContent>
+        </Card>
+      )}
+
       {result && result.grammarIssues !== undefined && (grammarCheck || mode === "grammar") && (
         <Card className="border-green-200 bg-green-50 dark:bg-green-950/20">
           <CardContent className="py-3">
@@ -289,51 +307,38 @@ export default function HumanizePage() {
       )}
 
       {result && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center justify-between">
-                Original
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center justify-between">
+              <span>{outputLabel}</span>
+              <div className="flex items-center gap-2">
                 {mode === "humanize" && (
-                  <Badge variant="destructive" className="text-xs">
-                    {result.aiScoreBefore}% AI
-                  </Badge>
+                  <>
+                    <Badge variant="destructive" className="text-xs">
+                      {result.aiScoreBefore}% AI
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">→</span>
+                    <Badge className="text-xs bg-green-500 hover:bg-green-500">
+                      {result.aiScoreAfter}% AI
+                    </Badge>
+                  </>
                 )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                {result.original}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center justify-between">
-                {outputLabel}
-                {mode === "humanize" && (
-                  <Badge className="text-xs bg-green-500 hover:bg-green-500">
-                    {result.aiScoreAfter}% AI
-                  </Badge>
-                )}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-3">
-              <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                {result.humanized}
-              </p>
-              <div className="flex gap-2 flex-wrap">
-                <Button variant="outline" size="sm" className="w-fit" onClick={() => handleCopy(result.humanized)}>
-                  {copied ? "Copied!" : "Copy output"}
-                </Button>
-                <Button variant="outline" size="sm" className="w-fit" onClick={handleDownload}>
-                  <Download className="size-4 mr-1" />
-                  Download .txt
-                </Button>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            <DiffView original={result.original} processed={result.humanized} />
+            <div className="flex gap-2 flex-wrap">
+              <Button variant="outline" size="sm" className="w-fit" onClick={() => handleCopy(result.humanized)}>
+                {copied ? "Copied!" : "Copy output"}
+              </Button>
+              <Button variant="outline" size="sm" className="w-fit" onClick={handleDownload}>
+                <Download className="size-4 mr-1" />
+                Download .txt
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {result && (

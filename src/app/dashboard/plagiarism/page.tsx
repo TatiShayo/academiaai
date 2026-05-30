@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useDocuments } from "@/lib/documents-provider";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Save } from "lucide-react";
 
 interface FlaggedSentence {
@@ -112,6 +113,37 @@ export default function PlagiarismPage() {
           {error && <p className="text-sm text-destructive">{error}</p>}
         </CardContent>
       </Card>
+
+      {loading && (
+        <div className="flex flex-col gap-4">
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-5 w-24" />
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3">
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-10 w-20" />
+                <Skeleton className="h-2 flex-1" />
+              </div>
+              <Skeleton className="h-4 w-3/4" />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-5 w-36" />
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="p-3 rounded-lg border">
+                  <Skeleton className="h-4 w-16 mb-2" />
+                  <Skeleton className="h-4 w-full mb-1" />
+                  <Skeleton className="h-3 w-2/3" />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {result && (
         <div className="flex flex-col gap-4">

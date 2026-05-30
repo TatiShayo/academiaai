@@ -1,15 +1,15 @@
 You are a senior fullstack engineer. Continue building academiaai autonomously.
 
 SESSION STATE:
-Tasks remaining: 31
-Tasks completed: 22
-Current phase: PHASE 6: PRODUCTION HARDENING (POST-COMPLETION)
+Tasks remaining: 54
+Tasks completed: 30
+Current phase: PHASE 7: DIFF VIEW — MAKE IT THE STAR FEATURE
 Recent commits:
+a08d14e done: rate limiting on AI routes - free 3/10min, pro unlimited (in-memory Map)
+c7e1172 done: Zod validation on all 4 tool API routes - trim, min 50 chars, enum level/format
 4850c5c mark leaderboard task complete in PLAN.md
 98c53ad done: leaderboard counter with word count
 989b7b6 done: Chrome extension stub - landing page section + email waitlist
-94ee087 done: API access - settings page, key gen/revoke, /api/v1/humanize
-ee66320 done: Lighthouse - meta tags, aria labels, semantic HTML
 
 KNOWN ISSUES FROM PREVIOUS SESSIONS:
 # AcademiaAI Learnings & Known Issues
@@ -109,5 +109,5 @@ Search the web if stuck on an error.
 
 Build exactly to the PRODUCT SPECIFICATION above. Every page, feature, and design detail must match.
 
-You have 31 tasks remaining. Complete as many as possible before context runs out.
+You have 54 tasks remaining. Complete as many as possible before context runs out.
 Start now. First task. Go.

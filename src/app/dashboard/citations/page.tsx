@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useDocuments } from "@/lib/documents-provider";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Save } from "lucide-react";
 
 export default function CitationsPage() {
@@ -110,6 +111,18 @@ export default function CitationsPage() {
           {error && <p className="text-sm text-destructive">{error}</p>}
         </CardContent>
       </Card>
+
+      {loading && (
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-5 w-36" />
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            <Skeleton className="h-24 w-full rounded-lg" />
+            <Skeleton className="h-8 w-28" />
+          </CardContent>
+        </Card>
+      )}
 
       {result && (
         <Card>
