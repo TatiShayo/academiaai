@@ -163,6 +163,22 @@ export default function HumanizerPage() {
         </div>
       </section>
 
+      {/* Related articles */}
+      <section className="max-w-3xl mx-auto px-4 py-24">
+        <h2 className="text-2xl font-bold text-center mb-8">Related articles</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {[
+            { href: "/blog/how-to-make-chatgpt-text-undetectable", title: "How to Make ChatGPT Text Undetectable" },
+            { href: "/blog/ai-vs-human-writing-the-differences", title: "AI vs Human Writing: The Differences" },
+          ].map((a) => (
+            <Link key={a.href} href={a.href} className="p-4 rounded-lg border hover:border-primary/50 transition-colors">
+              <p className="text-sm font-medium">{a.title}</p>
+              <p className="text-xs text-primary mt-1">Read article →</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="bg-primary/5 py-24">
         <div className="max-w-2xl mx-auto px-4 text-center">

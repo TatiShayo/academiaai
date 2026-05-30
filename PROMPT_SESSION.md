@@ -1,15 +1,15 @@
 You are a senior fullstack engineer. Continue building academiaai autonomously.
 
 SESSION STATE:
-Tasks remaining: 44
-Tasks completed: 53
-Current phase: PHASE 11: SEO & CONTENT ENGINE
+Tasks remaining: 84
+Tasks completed: 57
+Current phase: 99|## PHASE 11: SEO & CONTENT ENGINE
 Recent commits:
+4164b5c done: PHASE 11 — Blog infrastructure (/blog, @next/mdx, 3 seed posts with internal CTAs linking to tools)
+65a166a done: PHASE 11 — Individual tool SEO pages (/tools/humanizer, /tools/enhancer, /tools/plagiarism, /tools/citations) with unique title, meta, H1, demo, FAQ schema, CTA
+fe75c20 done: PHASE 11 — Add structured data JSON-LD (SoftwareApplication schema) to landing page
 f76fa5c done: PHASE 9 — API v1 endpoints (enhance, citations), API docs page (/docs/api), API rate limiting (100req/day)
 7c576d3 done: PHASE 10 — Affiliate program stub (/affiliates page with 30% recurring commission, waitlist form)
-f8f45d3 done: PHASE 10 — README.md + DEPLOY.md with full setup instructions
-885220c done: PHASE 10 — SEO meta tags: keywords, enhanced title/description, OpenGraph, Twitter card
-4300fdd done: PHASE 10 — E2E test extended: signup→paste→humanize→copy→save to library→verify in documents
 
 KNOWN ISSUES FROM PREVIOUS SESSIONS:
 # AcademiaAI Learnings & Known Issues
@@ -109,5 +109,5 @@ Search the web if stuck on an error.
 
 Build exactly to the PRODUCT SPECIFICATION above. Every page, feature, and design detail must match.
 
-You have 44 tasks remaining. Complete as many as possible before context runs out.
+You have 84 tasks remaining. Complete as many as possible before context runs out.
 Start now. First task. Go.
