@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { chat } from "@/lib/openai";
+import { incrementWordsProcessed } from "@/lib/usage";
 
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
@@ -45,6 +46,11 @@ export async function POST(request: NextRequest) {
       { role: "system", content: `You are an AI text humanizer. ${prompt} Return ONLY the humanized text, no explanations.` },
       { role: "user", content: text },
     ]);
+
+    const wordCount = text.split(/\s+/).filter(Boolean).length;
+    if (wordCount > 0) {
+      incrementWordsProcessed(keyRecord.user_id, wordCount);
+    }
 
     return NextResponse.json({
       original: text,

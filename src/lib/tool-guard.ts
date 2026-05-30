@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { canProcess, incrementUsage } from "@/lib/usage";
+import { canProcess, incrementUsage, incrementWordsProcessed } from "@/lib/usage";
 import { cookies } from "next/headers";
 
 export async function checkUsage() {
@@ -24,7 +24,10 @@ export async function checkUsage() {
   return { userId: user.id };
 }
 
-export async function trackUsage(userId: string) {
+export async function trackUsage(userId: string, wordCount = 0) {
   if (userId === "e2e-test-user") return;
   await incrementUsage(userId);
+  if (wordCount > 0) {
+    await incrementWordsProcessed(userId, wordCount);
+  }
 }

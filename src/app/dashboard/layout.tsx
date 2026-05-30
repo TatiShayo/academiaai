@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { DashboardClientWrapper } from "./dashboard-client-wrapper";
+import { WordCounter } from "@/components/word-counter";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
@@ -82,6 +83,7 @@ export default async function DashboardLayout({
           </nav>
           <div className="mt-auto flex flex-col gap-2">
             <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+            <WordCounter className="text-[11px] text-muted-foreground leading-relaxed" />
             <form action="/auth/signout" method="post">
               <Button variant="outline" size="sm" className="w-full">
                 Sign out

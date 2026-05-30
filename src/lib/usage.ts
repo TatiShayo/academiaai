@@ -146,6 +146,47 @@ export async function unlockSingle(userId: string): Promise<void> {
     );
 }
 
+export async function incrementWordsProcessed(userId: string, wordCount: number): Promise<void> {
+  const supabase = createAdminClient();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("total_words_processed")
+    .eq("id", userId)
+    .single();
+
+  if (!profile) {
+    await supabase.from("profiles").insert({
+      id: userId,
+      total_words_processed: wordCount,
+      plan: "free",
+    });
+    return;
+  }
+
+  await supabase
+    .from("profiles")
+    .update({
+      total_words_processed: profile.total_words_processed + wordCount,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", userId);
+}
+
+export async function getTotalWordsProcessed(): Promise<number> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("total_words_processed");
+
+  if (error || !data) return 0;
+
+  return (data as Array<{ total_words_processed: number }>).reduce(
+    (sum, row) => sum + (row.total_words_processed || 0),
+    0
+  );
+}
+
 export function getLimit(): number {
   return FREE_LIMIT;
 }

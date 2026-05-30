@@ -64,7 +64,8 @@ export async function POST(request: NextRequest) {
   const aiScoreBefore = Math.floor(Math.random() * 30 + 70);
   const aiScoreAfter = Math.floor(Math.random() * 15 + 1);
 
-  await trackUsage(usage.userId);
+  const wordCount = text.split(/\s+/).filter(Boolean).length;
+  await trackUsage(usage.userId, wordCount);
 
   return NextResponse.json({
     original: text,

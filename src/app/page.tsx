@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Sparkles, Pencil, ScanSearch, Quote, Check, Puzzle, Send } from "lucide-react";
+import { WordCounter } from "@/components/word-counter";
 
 export default function Home() {
   return (
@@ -35,6 +36,7 @@ export default function Home() {
         <p className="text-sm text-muted-foreground">
           Free for 3 documents per month. No credit card required.
         </p>
+        <WordCounter className="text-sm text-muted-foreground mt-4" />
       </section>
 
       {/* Tool Cards */}

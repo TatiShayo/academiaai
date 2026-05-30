@@ -29,7 +29,8 @@ export async function POST(request: NextRequest) {
 
     const changes = generateChanges(text, result);
 
-    await trackUsage(usage.userId);
+    const wordCount = text.split(/\s+/).filter(Boolean).length;
+    await trackUsage(usage.userId, wordCount);
 
     return NextResponse.json({
       original: text,
