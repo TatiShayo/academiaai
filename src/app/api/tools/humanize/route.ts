@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { chat } from "@/lib/openai";
 import { checkUsage, trackUsage } from "@/lib/tool-guard";
+import { humanizeSchema } from "@/lib/schemas";
 
 export async function POST(request: NextRequest) {
   const usage = await checkUsage();
   if (usage.error) return usage.error;
 
-  const { text, level, grammarCheck, mode } = await request.json();
-
-  if (!text || typeof text !== "string") {
-    return NextResponse.json({ error: "Text is required" }, { status: 400 });
+  const body = await request.json();
+  const parsed = humanizeSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
+
+  const { text, level, grammarCheck, mode } = parsed.data;
 
   const isGrammarOnly = mode === "grammar";
 

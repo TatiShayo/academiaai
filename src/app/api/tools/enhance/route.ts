@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { chat } from "@/lib/openai";
 import { checkUsage, trackUsage } from "@/lib/tool-guard";
+import { enhanceSchema } from "@/lib/schemas";
 
 export async function POST(request: NextRequest) {
   const usage = await checkUsage();
   if (usage.error) return usage.error;
 
-  const { text, level } = await request.json();
-
-  if (!text || typeof text !== "string") {
-    return NextResponse.json({ error: "Text is required" }, { status: 400 });
+  const body = await request.json();
+  const parsed = enhanceSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
+
+  const { text, level } = parsed.data;
 
   const levelMap: Record<string, string> = {
     "High School": "Rewrite at a high school academic level. Use clear, straightforward language.",
