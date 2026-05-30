@@ -74,8 +74,8 @@
 - [x] Version history: re-processing a document stores previous version — user can compare "Original → V1 → V2"
 - [x] Document tags: user can tag docs (Essay, Research, Thesis, Report) — filter by tag
 - [x] Folder system: organize docs into folders (user-created)
-- [ ] Bulk process: upload multiple .txt files → process all with same tool and level in one click
-- [ ] Search within documents: full-text search across saved doc contents (Supabase full-text search)
+- [x] Bulk process: upload multiple .txt files → process all with same tool and level in one click
+- [x] Search within documents: full-text search across saved doc contents (Supabase full-text search)
 
 ## PHASE 9: API ACCESS (PRO FEATURE)
 - [ ] API key generation: Pro users can generate API key in settings → stored as hashed value in profiles.api_key

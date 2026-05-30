@@ -44,7 +44,7 @@ describe("Academic Enhancer API", () => {
     expect(res.status).toBe(200);
     expect(json.original).toBe("The study shows some good results about the experiment.");
     expect(json.enhanced).toContain("investigation");
-    expect(mockTrackUsage).toHaveBeenCalledWith("user-1");
+    expect(mockTrackUsage).toHaveBeenCalledWith("user-1", 9);
   });
 
   it("enhances text to PhD level", async () => {
@@ -67,10 +67,10 @@ describe("Academic Enhancer API", () => {
   });
 
   it("returns word-change highlights", async () => {
-    mockChat.mockResolvedValue("The investigation demonstrates remarkable findings.");
+    mockChat.mockResolvedValue("The investigation demonstrates remarkable findings during the experimental analysis.");
 
     const req = createRequest({
-      text: "The study shows good results.",
+      text: "The study shows good results during the lab analysis experiment.",
       level: "Undergraduate",
     });
 
@@ -87,13 +87,13 @@ describe("Academic Enhancer API", () => {
     expect(res.status).toBe(400);
   });
 
-  it("defaults to Undergraduate when level is unknown", async () => {
+  it("rejects unknown level values with 400", async () => {
     const req = createRequest({
-      text: "Test text for level fallback.",
+      text: "Test text that is long enough to meet the minimum character count requirement for the validator.",
       level: "Unknown",
     });
 
     const res = await POST(req);
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(400);
   });
 });

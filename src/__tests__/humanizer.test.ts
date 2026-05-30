@@ -46,12 +46,12 @@ describe("Humanizer API", () => {
     expect(json.humanized).toBe("This is a perfectly natural rewrite of the text.");
     expect(json.aiScoreBefore).toBeGreaterThanOrEqual(70);
     expect(json.aiScoreAfter).toBeGreaterThanOrEqual(1);
-    expect(mockTrackUsage).toHaveBeenCalledWith("user-1");
+    expect(mockTrackUsage).toHaveBeenCalledWith("user-1", 11);
   });
 
   it("returns AI detection scores in expected ranges", async () => {
     const req = createRequest({
-      text: "Test text",
+      text: "This is a test text that is long enough to pass the minimum fifty character validation requirement.",
       level: "subtle",
     });
 
