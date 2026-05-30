@@ -13,7 +13,7 @@ test("paste text → humanize → copy output", async ({ page }) => {
   const testText = "The utilization of AI technology has increased significantly in recent years.";
   await textarea.fill(testText);
 
-  await page.getByRole("button", { name: "Humanize" }).click();
+  await page.getByRole("button", { name: "Humanize", exact: true }).click();
 
   await expect(page.getByText("Original")).toBeVisible({ timeout: 10000 });
   await expect(page.getByText("Humanized")).toBeVisible();

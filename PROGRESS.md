@@ -45,3 +45,5 @@
 [2026-05-30] done: Grammar + Style check combined with Humanizer — added grammar toggle, standalone Grammar Check mode tab, and summary display of fixed issues
 
 [2026-05-30] done: Bulk upload — drag & drop .docx/.txt files, mammoth parsing, download as .txt
+
+[2026-05-30] done: E2E test — paste text → humanize → copy output passing

@@ -40,7 +40,7 @@
 - [x] Unit test: humanizer API (mock OpenAI, verify text is transformed)
 - [x] Unit test: academic enhancer (verify vocabulary level changes)
 - [x] Unit test: usage limit enforcement (free user hits 3 docs, gets paywall)
-- [ ] E2e: paste text → humanize → copy output
+- [x] E2e: paste text → humanize → copy output
 - [ ] Lighthouse ≥85
 
 ## PHASE 5: ADVANCED
