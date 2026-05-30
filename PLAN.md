@@ -54,9 +54,9 @@
 ## PHASE 6: PRODUCTION HARDENING (POST-COMPLETION)
 - [x] npm run build: zero errors, zero warnings
 - [x] npx tsc --noEmit: zero errors
-- [ ] Add Zod validation to ALL 4 tool API routes
+- [x] Add Zod validation to ALL 4 tool API routes
 - [ ] Rate limiting on AI routes: free users max 3 requests/10min, pro unlimited (in-memory Map)
-- [ ] All text inputs: trim whitespace, reject empty, reject under 50 chars (not enough text to process)
+- [x] All text inputs: trim whitespace, reject empty, reject under 50 chars (not enough text to process)
 - [ ] Loading states: each tool shows a shimmer skeleton while API processes
 - [ ] Error handling: if OpenAI returns error → show friendly message not a stack trace
 - [ ] Mobile audit at 375px: side-by-side diff view must stack vertically on mobile

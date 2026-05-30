@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { canProcess, incrementUsage, incrementWordsProcessed } from "@/lib/usage";
+import { canProcess, incrementUsage, incrementWordsProcessed, getUsage } from "@/lib/usage";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { cookies } from "next/headers";
 
 export async function checkUsage() {
@@ -14,6 +15,18 @@ export async function checkUsage() {
 
   if (!user) {
     return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+  }
+
+  const usage = await getUsage(user.id);
+  const isPro = usage.plan === "pro";
+  const rateCheck = checkRateLimit(user.id, isPro);
+  if (!rateCheck.allowed) {
+    return {
+      error: NextResponse.json(
+        { error: "Rate limit exceeded. Please wait before making another request.", retryAfter: rateCheck.retryAfter },
+        { status: 429, headers: { "Retry-After": String(rateCheck.retryAfter ?? 60) } }
+      ),
+    };
   }
 
   const allowed = await canProcess(user.id);
