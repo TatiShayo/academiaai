@@ -89,8 +89,8 @@
 ## PHASE 10: LAUNCH PREP
 - [x] Write unit tests: each tool API route (mock OpenAI, test output parsing), usage limit enforcement
 - [x] E2e: signup → paste text → humanize → copy output → save to library
-- [ ] Lighthouse Performance >= 85
-- [ ] SEO: meta description includes "AI text humanizer", "undetectable AI writing", "academic writing tool"
-- [ ] README.md + DEPLOY.md
+- [x] Lighthouse Performance >= 85
+- [x] SEO: meta description includes "AI text humanizer", "undetectable AI writing", "academic writing tool"
+- [x] README.md + DEPLOY.md
 - [ ] Affiliate program stub: /affiliates page — "Earn 30% recurring commission" — collect waitlist emails
 - [ ] Chrome extension landing page section: "Coming soon — humanize text directly in Google Docs"

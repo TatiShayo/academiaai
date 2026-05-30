@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AcademiaAI — Your work. Just better.
+
+AI-powered academic writing tools: humanize AI text, elevate academic tone, scan plagiarism risk, and generate citations.
+
+## Tech Stack
+
+- **Frontend**: Next.js 16 (App Router), TypeScript, Tailwind CSS, shadcn/ui
+- **Backend**: Next.js API routes, Supabase (auth + DB)
+- **AI**: OpenAI GPT-4o
+- **Payments**: Stripe (subscriptions + one-time pay-per-doc)
+- **Email**: Resend
+- **Testing**: Vitest (unit), Playwright (e2e)
+
+## Features
+
+- **AI Humanizer** — Make AI-generated text undetectable with 3 levels (Subtle, Balanced, Aggressive)
+- **Academic Enhancer** — Elevate writing to High School, Undergraduate, Masters, or PhD level
+- **Plagiarism Risk Scanner** — AI-based risk estimation with flagged sentence highlighting
+- **Citation Generator** — Generate citations in APA, MLA, Chicago, and Harvard formats
+- **Diff View** — Word-by-word change highlighting with AI phrase removal counter
+- **Document Library** — Save, tag, search, folder-organize, and version-track documents
+- **Bulk Processing** — Upload multiple .txt files, process all in one click
+- **Chrome Extension** — Coming soon: humanize text directly in Google Docs
+- **API Access** — Pro users can generate API keys for programmatic access
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- npm
+- Supabase account
+- OpenAI API key
+- Stripe account (for payments)
+- Resend account (for emails)
+
+### Setup
+
+```bash
+git clone <repo-url>
+cd academiaai
+npm install
+```
+
+Create a `.env.local` file:
+
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# OpenAI
+OPENAI_API_KEY=
+
+# Stripe
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+
+# Resend
+RESEND_API_KEY=
+
+# App
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Commands
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Production build |
+| `npm start` | Start production server |
+| `npm test` | Run unit tests (Vitest) |
+| `npx playwright test` | Run e2e tests |
 
-## Learn More
+## Pricing
 
-To learn more about Next.js, take a look at the following resources:
+- **Free** — 3 documents/month, Humanizer only, basic mode
+- **Pro ($19/mo)** — Unlimited documents, all 4 tools, all levels, saved library, API access
+- **Pay-per-doc ($5)** — Single document credit, no subscription
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Architecture
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+├── app/            # Next.js App Router pages and API routes
+│   ├── api/        # API routes (tools, auth, stripe, keys)
+│   ├── dashboard/  # Dashboard and tool pages
+│   └── auth/       # Auth callback/signout
+├── components/     # React components (shadcn/ui based)
+├── lib/            # Shared utilities (OpenAI, Supabase, schemas, rate-limit, usage)
+├── __tests__/      # Vitest unit tests
+└── e2e/            # Playwright e2e tests
+```
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Proprietary. All rights reserved.
