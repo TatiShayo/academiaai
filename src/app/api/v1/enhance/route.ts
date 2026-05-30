@@ -43,16 +43,17 @@ export async function POST(request: NextRequest) {
   }
 
   const levelMap: Record<string, string> = {
-    subtle: "Make minor adjustments to sound more natural and human-like. Keep most of the original structure.",
-    balanced: "Rewrite to sound natural and human-like while preserving the original meaning and key points.",
-    aggressive: "Completely rewrite to sound like a human wrote it from scratch. Use varied sentence structure, occasional informal language, and natural flow.",
+    "High School": "Rewrite at a high school academic level. Use clear, straightforward language.",
+    Undergraduate: "Rewrite at an undergraduate university level. Use formal academic language with proper terminology.",
+    Masters: "Rewrite at a Masters/postgraduate level. Use sophisticated academic vocabulary, complex sentence structures, and field-appropriate terminology.",
+    PhD: "Rewrite at a PhD/doctoral level. Use highly sophisticated academic language, dense theoretical vocabulary, complex argumentation, and discipline-specific conventions.",
   };
 
-  const prompt = levelMap[level ?? "balanced"] ?? levelMap.balanced;
+  const prompt = levelMap[level] ?? levelMap.Undergraduate;
 
   try {
     const result = await chat([
-      { role: "system", content: `You are an AI text humanizer. ${prompt} Return ONLY the humanized text, no explanations.` },
+      { role: "system", content: `You are an academic writing expert. ${prompt} Improve vocabulary, sentence structure, and academic tone. Return ONLY the enhanced text, no explanations.` },
       { role: "user", content: text },
     ]);
 
@@ -63,9 +64,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       original: text,
-      humanized: result,
+      enhanced: result,
+      level: level ?? "Undergraduate",
     });
   } catch {
-    return NextResponse.json({ error: "Failed to humanize text" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to enhance text" }, { status: 500 });
   }
 }

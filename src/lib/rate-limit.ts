@@ -38,3 +38,41 @@ if (typeof setInterval !== "undefined") {
     }
   }, WINDOW_MS);
 }
+
+const apiRateLimitMap = new Map<string, { count: number; dayStart: number }>();
+const API_LIMIT_PRO = 100;
+const API_LIMIT_BUSINESS = 1000;
+
+export function checkApiRateLimit(userId: string): { allowed: boolean; remaining: number } {
+  const now = Date.now();
+  const oneDayMs = 24 * 60 * 60 * 1000;
+
+  let entry = apiRateLimitMap.get(userId);
+
+  if (!entry || now - entry.dayStart > oneDayMs) {
+    entry = { count: 0, dayStart: now };
+    apiRateLimitMap.set(userId, entry);
+  }
+
+  const limit = API_LIMIT_PRO;
+
+  if (entry.count >= limit) {
+    return { allowed: false, remaining: 0 };
+  }
+
+  entry.count++;
+  return { allowed: true, remaining: limit - entry.count };
+}
+
+// Clean up stale API entries periodically
+if (typeof setInterval !== "undefined") {
+  setInterval(() => {
+    const now = Date.now();
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    for (const [key, entry] of apiRateLimitMap) {
+      if (now - entry.dayStart > oneDayMs) {
+        apiRateLimitMap.delete(key);
+      }
+    }
+  }, 60 * 60 * 1000); // hourly cleanup
+}

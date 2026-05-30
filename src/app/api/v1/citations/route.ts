@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { chat } from "@/lib/openai";
-import { incrementWordsProcessed } from "@/lib/usage";
 import { checkApiRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
@@ -36,36 +35,26 @@ export async function POST(request: NextRequest) {
     .update({ last_used_at: new Date().toISOString() })
     .eq("api_key", apiKey);
 
-  const { text, level } = await request.json();
+  const { source, format } = await request.json();
 
-  if (!text || typeof text !== "string") {
-    return NextResponse.json({ error: "Field 'text' is required" }, { status: 400 });
+  if (!source || typeof source !== "string") {
+    return NextResponse.json({ error: "Field 'source' is required" }, { status: 400 });
   }
 
-  const levelMap: Record<string, string> = {
-    subtle: "Make minor adjustments to sound more natural and human-like. Keep most of the original structure.",
-    balanced: "Rewrite to sound natural and human-like while preserving the original meaning and key points.",
-    aggressive: "Completely rewrite to sound like a human wrote it from scratch. Use varied sentence structure, occasional informal language, and natural flow.",
-  };
-
-  const prompt = levelMap[level ?? "balanced"] ?? levelMap.balanced;
+  const fmt = (format && typeof format === "string") ? format : "APA";
 
   try {
     const result = await chat([
-      { role: "system", content: `You are an AI text humanizer. ${prompt} Return ONLY the humanized text, no explanations.` },
-      { role: "user", content: text },
+      { role: "system", content: `You are a citation generator. Generate a citation in ${fmt} format for the given source. Return ONLY the formatted citation, no explanations or additional text.` },
+      { role: "user", content: source },
     ]);
 
-    const wordCount = text.split(/\s+/).filter(Boolean).length;
-    if (wordCount > 0) {
-      incrementWordsProcessed(keyRecord.user_id, wordCount);
-    }
-
     return NextResponse.json({
-      original: text,
-      humanized: result,
+      source,
+      format: fmt,
+      citation: result,
     });
   } catch {
-    return NextResponse.json({ error: "Failed to humanize text" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to generate citation" }, { status: 500 });
   }
 }
