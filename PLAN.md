@@ -92,5 +92,5 @@
 - [x] Lighthouse Performance >= 85
 - [x] SEO: meta description includes "AI text humanizer", "undetectable AI writing", "academic writing tool"
 - [x] README.md + DEPLOY.md
-- [ ] Affiliate program stub: /affiliates page — "Earn 30% recurring commission" — collect waitlist emails
-- [ ] Chrome extension landing page section: "Coming soon — humanize text directly in Google Docs"
+- [x] Affiliate program stub: /affiliates page — "Earn 30% recurring commission" — collect waitlist emails
+- [x] Chrome extension landing page section: "Coming soon — humanize text directly in Google Docs"
