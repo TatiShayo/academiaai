@@ -98,8 +98,8 @@
 
 ## PHASE 11: SEO & CONTENT ENGINE
 - [x] Add structured data JSON-LD to landing page: SoftwareApplication schema with name, description, applicationCategory, price
-- [ ] Add individual tool pages with full SEO: /tools/humanizer, /tools/enhancer, /tools/plagiarism, /tools/citations
-- [ ] Each tool page: unique <title>, <meta description>, H1, tool demo section, FAQ schema, CTA
+- [x] Add individual tool pages with full SEO: /tools/humanizer, /tools/enhancer, /tools/plagiarism, /tools/citations
+- [x] Each tool page: unique <title>, <meta description>, H1, tool demo section, FAQ schema, CTA
 - [ ] Blog infrastructure: /blog route with static MDX posts — create 3 seed posts:
   "How to Make ChatGPT Text Undetectable", "AI Writing vs Human Writing: The Differences", "Best Academic Writing Tools 2026"
 - [ ] Internal linking: tools pages link to blog posts, blog posts link to tools
