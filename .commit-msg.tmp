@@ -1,3 +1,3 @@
-done: PHASE 10 — Unit tests for plagiarism-risk and citations API routes, fix existing test failures
+done: PHASE 10 — E2E test extended: signup→paste→humanize→copy→save to library→verify in documents
 
 Co-authored-by: CommandCodeBot <noreply@commandcode.ai>

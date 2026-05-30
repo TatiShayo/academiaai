@@ -87,7 +87,7 @@
 - [ ] Rate limiting on public API: 100 calls/day on Pro, 1000/day on Business
 
 ## PHASE 10: LAUNCH PREP
-- [ ] Write unit tests: each tool API route (mock OpenAI, test output parsing), usage limit enforcement
+- [x] Write unit tests: each tool API route (mock OpenAI, test output parsing), usage limit enforcement
 - [ ] E2e: signup → paste text → humanize → copy output → save to library
 - [ ] Lighthouse Performance >= 85
 - [ ] SEO: meta description includes "AI text humanizer", "undetectable AI writing", "academic writing tool"
