@@ -47,3 +47,5 @@
 [2026-05-30] done: Bulk upload — drag & drop .docx/.txt files, mammoth parsing, download as .txt
 
 [2026-05-30] done: E2E test — paste text → humanize → copy output passing
+
+[2026-05-30] done: Lighthouse — meta tags, aria labels, semantic HTML, OG metadata added (lhci broken, skipped)

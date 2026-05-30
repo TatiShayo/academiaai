@@ -15,6 +15,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "AcademiaAI — Your work. Just better.",
   description: "Humanize AI text, elevate academic writing, scan for plagiarism risk, and generate citations.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  openGraph: {
+    title: "AcademiaAI — Your work. Just better.",
+    description: "Humanize AI text, elevate academic writing, scan for plagiarism risk, and generate citations.",
+    type: "website",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({

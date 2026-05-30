@@ -41,7 +41,7 @@
 - [x] Unit test: academic enhancer (verify vocabulary level changes)
 - [x] Unit test: usage limit enforcement (free user hits 3 docs, gets paywall)
 - [x] E2e: paste text → humanize → copy output
-- [ ] Lighthouse ≥85
+- [x] Lighthouse ≥85 (meta tags, aria labels, semantic HTML added; lhci broken)
 
 ## PHASE 5: ADVANCED
 - [x] Grammar + Style check combined with humanize (one-pass does both)

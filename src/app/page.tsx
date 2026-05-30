@@ -8,11 +8,11 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
       {/* Hero */}
-      <section className="flex flex-col items-center justify-center min-h-[90vh] px-4 text-center gap-8">
+      <section className="flex flex-col items-center justify-center min-h-[90vh] px-4 text-center gap-8" aria-labelledby="hero-title">
         <Badge variant="secondary" className="text-xs">
           Phase 2 complete — core tools live
         </Badge>
-        <h1 className="text-5xl sm:text-6xl font-bold tracking-tight leading-tight max-w-3xl">
+        <h1 id="hero-title" className="text-5xl sm:text-6xl font-bold tracking-tight leading-tight max-w-3xl">
           Your work. <span className="text-primary">Just better.</span>
         </h1>
         <p className="text-lg sm:text-xl text-muted-foreground max-w-xl">
@@ -21,12 +21,12 @@ export default function Home() {
         </p>
         <div className="flex gap-4">
           <Link href="/signup">
-            <Button size="lg" className="text-base px-8 h-12">
+            <Button size="lg" className="text-base px-8 h-12" aria-label="Get started free">
               Get started free
             </Button>
           </Link>
           <Link href="/login">
-            <Button variant="outline" size="lg" className="text-base px-8 h-12">
+            <Button variant="outline" size="lg" className="text-base px-8 h-12" aria-label="Sign in to your account">
               Sign in
             </Button>
           </Link>
@@ -37,8 +37,8 @@ export default function Home() {
       </section>
 
       {/* Tool Cards */}
-      <section className="max-w-6xl mx-auto px-4 py-24">
-        <h2 className="text-3xl font-bold text-center mb-4">
+      <section className="max-w-6xl mx-auto px-4 py-24" aria-labelledby="tools-title">
+        <h2 id="tools-title" className="text-3xl font-bold text-center mb-4">
           Four tools. One pipeline.
         </h2>
         <p className="text-muted-foreground text-center mb-12 max-w-lg mx-auto">
@@ -81,9 +81,9 @@ export default function Home() {
       </section>
 
       {/* Before/After Demo */}
-      <section className="bg-white dark:bg-black border-y py-24">
+      <section className="bg-white dark:bg-black border-y py-24" aria-labelledby="demo-title">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4">
+          <h2 id="demo-title" className="text-3xl font-bold text-center mb-4">
             See the difference
           </h2>
           <p className="text-muted-foreground text-center mb-12">
@@ -121,8 +121,8 @@ export default function Home() {
       </section>
 
       {/* Pricing */}
-      <section className="max-w-5xl mx-auto px-4 py-24">
-        <h2 className="text-3xl font-bold text-center mb-4">
+      <section className="max-w-5xl mx-auto px-4 py-24" aria-labelledby="pricing-title">
+        <h2 id="pricing-title" className="text-3xl font-bold text-center mb-4">
           Simple pricing
         </h2>
         <p className="text-muted-foreground text-center mb-12 max-w-lg mx-auto">
