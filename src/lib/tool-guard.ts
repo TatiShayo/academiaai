@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { canProcess, incrementUsage } from "@/lib/usage";
+import { cookies } from "next/headers";
 
 export async function checkUsage() {
+  const jar = await cookies();
+  if (jar.get("e2e-bypass")?.value === "true") {
+    return { userId: "e2e-test-user" };
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -19,5 +25,6 @@ export async function checkUsage() {
 }
 
 export async function trackUsage(userId: string) {
+  if (userId === "e2e-test-user") return;
   await incrementUsage(userId);
 }

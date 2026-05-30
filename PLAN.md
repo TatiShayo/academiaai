@@ -37,14 +37,14 @@
 - [x] Usage tracking: count docs processed this month per user
 
 ## PHASE 4: TESTING
-- [ ] Unit test: humanizer API (mock OpenAI, verify text is transformed)
-- [ ] Unit test: academic enhancer (verify vocabulary level changes)
-- [ ] Unit test: usage limit enforcement (free user hits 3 docs, gets paywall)
+- [x] Unit test: humanizer API (mock OpenAI, verify text is transformed)
+- [x] Unit test: academic enhancer (verify vocabulary level changes)
+- [x] Unit test: usage limit enforcement (free user hits 3 docs, gets paywall)
 - [ ] E2e: paste text → humanize → copy output
 - [ ] Lighthouse ≥85
 
 ## PHASE 5: ADVANCED
-- [ ] Grammar + Style check combined with humanize (one-pass does both)
+- [x] Grammar + Style check combined with humanize (one-pass does both)
 - [ ] Bulk upload: process a .docx or .txt file, return processed .docx
 - [ ] Chrome extension stub: landing page section explaining "coming soon" extension
 - [ ] API access (Pro+): users can call the humanizer/enhancer via API key
