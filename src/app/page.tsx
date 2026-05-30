@@ -6,9 +6,44 @@ import { Input } from "@/components/ui/input";
 import { Sparkles, Pencil, ScanSearch, Quote, Check, Puzzle, Send } from "lucide-react";
 import { WordCounter } from "@/components/word-counter";
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "AcademiaAI",
+  "description": "AI text humanizer, academic writing enhancer, plagiarism risk scanner, and citation generator for students and researchers.",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Web",
+  "offers": [
+    {
+      "@type": "Offer",
+      "name": "Free",
+      "price": "0",
+      "priceCurrency": "USD",
+    },
+    {
+      "@type": "Offer",
+      "name": "Pro",
+      "price": "19",
+      "priceCurrency": "USD",
+      "description": "Monthly subscription",
+    },
+    {
+      "@type": "Offer",
+      "name": "Pay-per-doc",
+      "price": "5",
+      "priceCurrency": "USD",
+      "description": "Single document credit",
+    },
+  ],
+};
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero */}
       <section className="flex flex-col items-center justify-center min-h-[90vh] px-4 text-center gap-8" aria-labelledby="hero-title">
         <Badge variant="secondary" className="text-xs">

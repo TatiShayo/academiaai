@@ -78,13 +78,13 @@
 - [x] Search within documents: full-text search across saved doc contents (Supabase full-text search)
 
 ## PHASE 9: API ACCESS (PRO FEATURE)
-- [ ] API key generation: Pro users can generate API key in settings → stored as hashed value in profiles.api_key
-- [ ] Public API endpoints (authenticated by API key in header):
+- [x] API key generation: Pro users can generate API key in settings → stored as hashed value in profiles.api_key
+- [x] Public API endpoints (authenticated by API key in header):
   POST /api/v1/humanize — same as tool but accessible via API
   POST /api/v1/enhance — academic enhancer via API
   POST /api/v1/citations — citation generator via API
-- [ ] API documentation page: /docs/api — simple markdown page showing example curl commands
-- [ ] Rate limiting on public API: 100 calls/day on Pro, 1000/day on Business
+- [x] API documentation page: /docs/api — simple markdown page showing example curl commands
+- [x] Rate limiting on public API: 100 calls/day on Pro, 1000/day on Business
 
 ## PHASE 10: LAUNCH PREP
 - [x] Write unit tests: each tool API route (mock OpenAI, test output parsing), usage limit enforcement
@@ -94,3 +94,61 @@
 - [x] README.md + DEPLOY.md
 - [x] Affiliate program stub: /affiliates page — "Earn 30% recurring commission" — collect waitlist emails
 - [x] Chrome extension landing page section: "Coming soon — humanize text directly in Google Docs"
+
+
+## PHASE 11: SEO & CONTENT ENGINE
+- [x] Add structured data JSON-LD to landing page: SoftwareApplication schema with name, description, applicationCategory, price
+- [ ] Add individual tool pages with full SEO: /tools/humanizer, /tools/enhancer, /tools/plagiarism, /tools/citations
+- [ ] Each tool page: unique <title>, <meta description>, H1, tool demo section, FAQ schema, CTA
+- [ ] Blog infrastructure: /blog route with static MDX posts — create 3 seed posts:
+  "How to Make ChatGPT Text Undetectable", "AI Writing vs Human Writing: The Differences", "Best Academic Writing Tools 2026"
+- [ ] Internal linking: tools pages link to blog posts, blog posts link to tools
+- [ ] Generate sitemap.xml including all tool pages and blog posts (next-sitemap)
+- [ ] robots.txt: allow all crawlers, point to sitemap
+- [ ] Image alt text on all landing page images
+- [ ] Core Web Vitals: Largest Contentful Paint < 2.5s, CLS < 0.1 — fix with next/image and font preloading
+
+## PHASE 12: GOOGLE DOCS INTEGRATION (KILLER FEATURE)
+- [ ] Research Google Docs Add-on API — create src/lib/gdocs-addon-spec.md documenting how it would work
+- [ ] Build web-based Google Docs connector: user pastes Google Docs URL → fetch doc content via Google Docs API (read-only)
+- [ ] /dashboard/import-gdoc page: paste URL → fetch content → auto-populate humanizer tool
+- [ ] Add GOOGLE_DOCS_API_KEY and GOOGLE_CLIENT_ID to .env.local.example
+- [ ] If no API key: show demo with static sample doc content (graceful degradation)
+- [ ] "Process entire document" mode: splits long documents into chunks → processes each → reassembles
+- [ ] Export back as .docx: after processing, "Download as Word Document" button → use docx npm package to generate
+
+## PHASE 13: AFFILIATE & REFERRAL SYSTEM
+- [ ] Affiliate table in Supabase: id, user_id, referral_code, clicks, signups, conversions, total_earned
+- [ ] /affiliates page (public): "Earn 30% recurring commission" — email capture for affiliate waitlist
+- [ ] /dashboard/affiliate page (for users): their referral link, stats (clicks, signups, earnings)
+- [ ] Track referral signups: when new user signs up via /ref/[code] → record in affiliate table
+- [ ] Conversion tracking: when referred user upgrades to Pro → credit affiliate with 30% of $19
+- [ ] Payout threshold: $50 minimum → show "Request Payout" button (records in payout_requests table)
+- [ ] Affiliate email: monthly statement via Resend showing earnings + conversion rate
+
+## PHASE 14: MOBILE-FIRST LANDING REDESIGN
+- [ ] Audit landing page at 375px — every section must look deliberate, not broken
+- [ ] Hero: on mobile, mockup image goes below text (not side by side)
+- [ ] Live demo widget: full width on mobile, with tab navigation instead of side-by-side
+- [ ] Pricing cards: single column stack on mobile
+- [ ] FAQ: accordion style (shadcn Accordion component) — opens/closes on tap
+- [ ] CTA sticky bar: fixed bottom bar on mobile showing "Start Free — No Card" button
+- [ ] Add social proof numbers: "2,847 students humanized text this week" (hardcoded, realistic)
+- [ ] Add trust badges: "SSL Secured", "No data stored", "GDPR compliant" icons row
+
+## PHASE 15: INTEGRATIONS & API MARKETPLACE
+- [ ] Create /api/v1/health — returns JSON status for uptime monitoring
+- [ ] Add API key auth middleware: extract key from Authorization: Bearer header → validate against profiles.api_key
+- [ ] OpenAPI spec: create public/api-spec.yaml documenting all v1 endpoints
+- [ ] /docs/api page: render OpenAPI spec as readable documentation (use swagger-ui-react or simple static page)
+- [ ] Zapier integration stub: /integrations/zapier page describing use cases (when doc processed → send to Zapier)
+- [ ] Webhook support: Pro users can set a webhook URL in settings → POST notification when doc processed
+- [ ] Make My Trip integration note: /integrations page listing planned integrations (Google Docs, Notion, Word, Grammarly)
+
+## PHASE 16: LAUNCH & MARKETING ASSETS
+- [ ] Create /pricing/compare page — detailed AcademiaAI vs Grammarly vs QuillBot vs Undetectable.ai feature matrix
+- [ ] Testimonials system: testimonials table in Supabase → /admin/testimonials page to add/approve → display on landing
+- [ ] Press kit page /press: logo download, product screenshots, founder bio, product description for press
+- [ ] Launch checklist: create LAUNCH_CHECKLIST.md — every step to go live (domain, Supabase prod, Stripe live mode, etc.)
+- [ ] Product Hunt preparation: create assets/product-hunt/ folder with tagline, description, first comment, screenshots list
+- [ ] Social media kit: create assets/social/ with 5 tweet templates, 3 LinkedIn post templates promoting the tools

@@ -1,15 +1,15 @@
 You are a senior fullstack engineer. Continue building academiaai autonomously.
 
 SESSION STATE:
-Tasks remaining: 19
-Tasks completed: 34
-Current phase: PHASE 7: DIFF VIEW — MAKE IT THE STAR FEATURE
+Tasks remaining: 44
+Tasks completed: 53
+Current phase: PHASE 11: SEO & CONTENT ENGINE
 Recent commits:
-3cdb12d done: PHASE 7 - Diff View star feature (diff package, DiffView component, indigo/red word highlighting, word counter, AI phrase removal counter, staggered animation)
-a08d14e done: rate limiting on AI routes - free 3/10min, pro unlimited (in-memory Map)
-c7e1172 done: Zod validation on all 4 tool API routes - trim, min 50 chars, enum level/format
-4850c5c mark leaderboard task complete in PLAN.md
-98c53ad done: leaderboard counter with word count
+f76fa5c done: PHASE 9 — API v1 endpoints (enhance, citations), API docs page (/docs/api), API rate limiting (100req/day)
+7c576d3 done: PHASE 10 — Affiliate program stub (/affiliates page with 30% recurring commission, waitlist form)
+f8f45d3 done: PHASE 10 — README.md + DEPLOY.md with full setup instructions
+885220c done: PHASE 10 — SEO meta tags: keywords, enhanced title/description, OpenGraph, Twitter card
+4300fdd done: PHASE 10 — E2E test extended: signup→paste→humanize→copy→save to library→verify in documents
 
 KNOWN ISSUES FROM PREVIOUS SESSIONS:
 # AcademiaAI Learnings & Known Issues
@@ -109,5 +109,5 @@ Search the web if stuck on an error.
 
 Build exactly to the PRODUCT SPECIFICATION above. Every page, feature, and design detail must match.
 
-You have 19 tasks remaining. Complete as many as possible before context runs out.
+You have 44 tasks remaining. Complete as many as possible before context runs out.
 Start now. First task. Go.
