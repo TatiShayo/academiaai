@@ -73,6 +73,12 @@ export default async function DashboardLayout({
             >
               Documents
             </Link>
+            <Link
+              href="/dashboard/settings"
+              className="text-sm px-3 py-2 rounded-md hover:bg-muted transition-colors"
+            >
+              Settings
+            </Link>
           </nav>
           <div className="mt-auto flex flex-col gap-2">
             <p className="text-xs text-muted-foreground truncate">{user.email}</p>

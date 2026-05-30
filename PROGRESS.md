@@ -49,3 +49,5 @@
 [2026-05-30] done: E2E test — paste text → humanize → copy output passing
 
 [2026-05-30] done: Lighthouse — meta tags, aria labels, semantic HTML, OG metadata added (lhci broken, skipped)
+
+[2026-05-30] done: API access — settings page with API key gen/revoke, /api/v1/humanize endpoint with Bearer auth
