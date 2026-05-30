@@ -62,18 +62,18 @@
 - [x] Mobile audit at 375px: side-by-side diff view must stack vertically on mobile
 
 ## PHASE 7: DIFF VIEW — MAKE IT THE STAR FEATURE
-- [ ] Install diff package if not installed: npm install diff
-- [ ] diffWords(original, processed) — render word-by-word changes
-- [ ] Visual diff: added words = indigo background, removed words = red strikethrough
-- [ ] "X words changed" counter: count added words, show as "47 words humanized"
-- [ ] "AI fingerprint removal" score: count of removed AI-typical phrases (list: "Furthermore", "In conclusion", "It is worth noting", "Moreover", "In summary", "Notably", "Importantly") — shows "Removed 5 common AI phrases"
-- [ ] Animated reveal: processed text fades in word by word (stagger animation, 5ms per word)
+- [x] Install diff package if not installed: npm install diff
+- [x] diffWords(original, processed) — render word-by-word changes
+- [x] Visual diff: added words = indigo background, removed words = red strikethrough
+- [x] "X words changed" counter: count added words, show as "47 words humanized"
+- [x] "AI fingerprint removal" score: count of removed AI-typical phrases (list: "Furthermore", "In conclusion", "It is worth noting", "Moreover", "In summary", "Notably", "Importantly") — shows "Removed 5 common AI phrases"
+- [x] Animated reveal: processed text fades in word by word (stagger animation, 5ms per word)
 
 ## PHASE 8: DOCUMENT LIBRARY UPGRADE
-- [ ] Auto-title documents: if user doesn't name it, use first 60 chars of original text
-- [ ] Version history: re-processing a document stores previous version — user can compare "Original → V1 → V2"
-- [ ] Document tags: user can tag docs (Essay, Research, Thesis, Report) — filter by tag
-- [ ] Folder system: organize docs into folders (user-created)
+- [x] Auto-title documents: if user doesn't name it, use first 60 chars of original text
+- [x] Version history: re-processing a document stores previous version — user can compare "Original → V1 → V2"
+- [x] Document tags: user can tag docs (Essay, Research, Thesis, Report) — filter by tag
+- [x] Folder system: organize docs into folders (user-created)
 - [ ] Bulk process: upload multiple .txt files → process all with same tool and level in one click
 - [ ] Search within documents: full-text search across saved doc contents (Supabase full-text search)
 

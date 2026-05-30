@@ -39,6 +39,9 @@ export default function HumanizePage() {
   const [uploading, setUploading] = useState(false);
   const [uploadFileName, setUploadFileName] = useState("");
   const [dragActive, setDragActive] = useState(false);
+  const [bulkFiles, setBulkFiles] = useState<File[]>([]);
+  const [bulkResults, setBulkResults] = useState<{ name: string; text: string }[]>([]);
+  const [bulkProcessing, setBulkProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { saveDocument } = useDocuments();
 
@@ -133,17 +136,66 @@ export default function HumanizePage() {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length === 1) {
       handleFileUpload(files[0]);
+    } else if (files.length > 1) {
+      setBulkFiles(files.filter(f => f.name.endsWith(".txt")));
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files.length > 0) {
-      handleFileUpload(files[0]);
+    if (!files) return;
+    const fileArr = Array.from(files);
+    if (fileArr.length === 1) {
+      handleFileUpload(fileArr[0]);
+    } else if (fileArr.length > 1) {
+      setBulkFiles(fileArr.filter(f => f.name.endsWith(".txt")));
     }
+  };
+
+  const handleBulkProcess = async () => {
+    if (bulkFiles.length === 0) return;
+    setBulkProcessing(true);
+    setError("");
+    const results: { name: string; text: string }[] = [];
+    for (const file of bulkFiles) {
+      try {
+        const fileText = await file.text();
+        const body: Record<string, unknown> = { text: fileText };
+        if (mode === "humanize") {
+          body.level = level;
+          body.grammarCheck = grammarCheck;
+        } else {
+          body.mode = "grammar";
+        }
+        const res = await fetch("/api/tools/humanize", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (data.error) {
+          results.push({ name: file.name, text: `Error: ${data.error}` });
+        } else {
+          const output = data.humanized ?? data.corrected ?? "";
+          results.push({ name: file.name, text: output });
+          saveDocument({
+            name: file.name.replace(/\.txt$/i, ""),
+            original: fileText,
+            processed: output,
+            tool: "humanize",
+            wordCount: output.split(/\s+/).filter(Boolean).length,
+          });
+        }
+      } catch {
+        results.push({ name: file.name, text: "Error: Failed to process." });
+      }
+    }
+    setBulkResults(results);
+    setBulkFiles([]);
+    setBulkProcessing(false);
   };
 
   const handleDownload = () => {
@@ -203,6 +255,7 @@ export default function HumanizePage() {
           ref={fileInputRef}
           type="file"
           accept=".docx,.txt"
+          multiple
           className="hidden"
           onChange={handleFileChange}
         />
@@ -353,6 +406,72 @@ export default function HumanizePage() {
             />
             <Button variant="outline" size="sm" onClick={handleSave} disabled={!saveName.trim() || saved}>
               {saved ? "Saved!" : "Save to documents"}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {bulkFiles.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Bulk Process — {bulkFiles.length} file{bulkFiles.length !== 1 ? "s" : ""}</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            <ul className="text-sm text-muted-foreground space-y-1">
+              {bulkFiles.map((f, i) => (
+                <li key={i} className="flex items-center gap-2">
+                  <FileText className="size-3.5" />
+                  {f.name}
+                </li>
+              ))}
+            </ul>
+            <div className="flex gap-2">
+              <Button onClick={handleBulkProcess} disabled={bulkProcessing} className="w-fit">
+                {bulkProcessing ? "Processing all..." : `Process all with ${mode === "grammar" ? "Grammar Check" : "Humanizer"}`}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setBulkFiles([])}>
+                Clear
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {bulkResults.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center justify-between">
+              <span>Bulk Results</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const zipContent = bulkResults.map(r => `=== ${r.name} ===\n\n${r.text}`).join("\n\n\n");
+                  const blob = new Blob([zipContent], { type: "text/plain" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = "bulk-results.txt";
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+              >
+                <Download className="size-4 mr-1" />
+                Download All
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            {bulkResults.map((r, i) => (
+              <div key={i} className="p-3 rounded-lg border bg-card">
+                <p className="text-sm font-medium mb-1">{r.name}</p>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap max-h-48 overflow-y-auto">
+                  {r.text.slice(0, 500)}{r.text.length > 500 ? "..." : ""}
+                </p>
+              </div>
+            ))}
+            <Button variant="ghost" size="sm" className="w-fit" onClick={() => setBulkResults([])}>
+              Clear results
             </Button>
           </CardContent>
         </Card>
