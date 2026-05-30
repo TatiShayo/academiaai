@@ -48,4 +48,4 @@
 - [x] Bulk upload: process a .docx or .txt file, return processed .docx
 - [x] Chrome extension stub: landing page section explaining "coming soon" extension
 - [x] API access (Pro+): users can call the humanizer/enhancer via API key
-- [ ] Leaderboard: "AcademiaAI users have humanized X million words this month" (social proof counter)
+- [x] Leaderboard: "AcademiaAI users have humanized X million words this month" (social proof counter)
