@@ -45,7 +45,7 @@
 
 ## PHASE 5: ADVANCED
 - [x] Grammar + Style check combined with humanize (one-pass does both)
-- [ ] Bulk upload: process a .docx or .txt file, return processed .docx
+- [x] Bulk upload: process a .docx or .txt file, return processed .docx
 - [ ] Chrome extension stub: landing page section explaining "coming soon" extension
 - [ ] API access (Pro+): users can call the humanizer/enhancer via API key
 - [ ] Leaderboard: "AcademiaAI users have humanized X million words this month" (social proof counter)

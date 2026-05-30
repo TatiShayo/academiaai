@@ -43,3 +43,5 @@
 [2026-05-30 11:58:12.610591] Session #1: 7 tasks left
 
 [2026-05-30] done: Grammar + Style check combined with Humanizer — added grammar toggle, standalone Grammar Check mode tab, and summary display of fixed issues
+
+[2026-05-30] done: Bulk upload — drag & drop .docx/.txt files, mammoth parsing, download as .txt

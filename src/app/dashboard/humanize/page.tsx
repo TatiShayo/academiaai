@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, type DragEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { useDocuments } from "@/lib/documents-provider";
 import { Input } from "@/components/ui/input";
 import { UsageGate } from "@/components/usage-gate";
 import { incrementUsage, getRemaining, getLimit } from "@/lib/usage-limits";
-import { Save, CheckCircle, Sparkles } from "lucide-react";
+import { Save, CheckCircle, Sparkles, Upload, Download, FileText, X } from "lucide-react";
 
 type Mode = "humanize" | "grammar";
 
@@ -34,6 +34,10 @@ export default function HumanizePage() {
   const [saveName, setSaveName] = useState("");
   const [saved, setSaved] = useState(false);
   const [paywall, setPaywall] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadFileName, setUploadFileName] = useState("");
+  const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { saveDocument } = useDocuments();
 
   const handleHumanize = async () => {
@@ -89,6 +93,68 @@ export default function HumanizePage() {
     setTimeout(() => setSaved(false), 3000);
   };
 
+  const handleFileUpload = async (file: File) => {
+    setUploading(true);
+    setUploadFileName(file.name);
+    setError("");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/tools/humanize/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.error) {
+        setError(data.error);
+      } else {
+        setText(data.text);
+      }
+    } catch {
+      setError("Failed to upload file.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDrag = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  };
+
+  const handleDownload = () => {
+    if (!result) return;
+    const blob = new Blob([result.humanized], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = uploadFileName ? `processed-${uploadFileName.replace(/\.(docx|txt)$/i, "")}.txt` : "output.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const actionLabel = mode === "grammar" ? "Check Grammar" : "Humanize";
   const actionLoadingLabel = mode === "grammar" ? "Checking..." : "Humanizing...";
   const outputLabel = mode === "grammar" ? "Corrected" : "Humanized";
@@ -119,6 +185,49 @@ export default function HumanizePage() {
           <CheckCircle className="size-4 mr-1.5" />
           Grammar Check
         </Button>
+      </div>
+
+      <div
+        className={`relative border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center gap-2 transition-colors cursor-pointer ${
+          dragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25 hover:border-muted-foreground/50"
+        }`}
+        onDragEnter={handleDrag}
+        onDragLeave={handleDrag}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".docx,.txt"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        {uploading ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="animate-spin w-4 h-4 border-2 border-muted-foreground border-t-transparent rounded-full" />
+            Processing {uploadFileName}...
+          </div>
+        ) : uploadFileName && text ? (
+          <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+            <FileText className="size-4" />
+            Loaded: {uploadFileName}
+            <button
+              onClick={(e) => { e.stopPropagation(); setUploadFileName(""); setText(""); }}
+              className="ml-1 text-muted-foreground hover:text-destructive"
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+        ) : (
+          <>
+            <Upload className="size-8 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">
+              Drop a .docx or .txt file here, or click to browse
+            </p>
+          </>
+        )}
       </div>
 
       <Card>
@@ -213,9 +322,15 @@ export default function HumanizePage() {
               <p className="text-sm leading-relaxed whitespace-pre-wrap">
                 {result.humanized}
               </p>
-              <Button variant="outline" size="sm" className="w-fit" onClick={() => handleCopy(result.humanized)}>
-                {copied ? "Copied!" : "Copy output"}
-              </Button>
+              <div className="flex gap-2 flex-wrap">
+                <Button variant="outline" size="sm" className="w-fit" onClick={() => handleCopy(result.humanized)}>
+                  {copied ? "Copied!" : "Copy output"}
+                </Button>
+                <Button variant="outline" size="sm" className="w-fit" onClick={handleDownload}>
+                  <Download className="size-4 mr-1" />
+                  Download .txt
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
