@@ -13,13 +13,31 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AcademiaAI — Your work. Just better.",
-  description: "Humanize AI text, elevate academic writing, scan for plagiarism risk, and generate citations.",
+  title: "AcademiaAI — AI Text Humanizer | Your work. Just better.",
+  description:
+    "Undetectable AI text humanizer, academic writing tool, plagiarism risk scanner, and citation generator. Make AI-generated text sound human in one click.",
+  keywords: [
+    "AI text humanizer",
+    "undetectable AI writing",
+    "academic writing tool",
+    "plagiarism risk scanner",
+    "citation generator",
+    "AI to human text converter",
+    "academic enhancer",
+  ],
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   openGraph: {
-    title: "AcademiaAI — Your work. Just better.",
-    description: "Humanize AI text, elevate academic writing, scan for plagiarism risk, and generate citations.",
+    title: "AcademiaAI — AI Text Humanizer | Your work. Just better.",
+    description:
+      "Undetectable AI text humanizer, academic writing tool, plagiarism risk scanner, and citation generator.",
     type: "website",
+    siteName: "AcademiaAI",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AcademiaAI — AI Text Humanizer | Your work. Just better.",
+    description:
+      "Undetectable AI text humanizer, academic writing tool, plagiarism risk scanner, and citation generator.",
   },
   robots: { index: true, follow: true },
 };

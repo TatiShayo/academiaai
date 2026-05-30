@@ -88,7 +88,7 @@
 
 ## PHASE 10: LAUNCH PREP
 - [x] Write unit tests: each tool API route (mock OpenAI, test output parsing), usage limit enforcement
-- [ ] E2e: signup → paste text → humanize → copy output → save to library
+- [x] E2e: signup → paste text → humanize → copy output → save to library
 - [ ] Lighthouse Performance >= 85
 - [ ] SEO: meta description includes "AI text humanizer", "undetectable AI writing", "academic writing tool"
 - [ ] README.md + DEPLOY.md
