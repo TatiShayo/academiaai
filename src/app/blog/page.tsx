@@ -1,3 +1,6 @@
+import fs from "fs";
+import path from "path";
+import matter from "gray-matter";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -9,34 +12,34 @@ export const metadata: Metadata = {
     "Expert guides on AI text humanization, academic writing, plagiarism prevention, and citation best practices. Tips for students and researchers.",
 };
 
-const posts = [
-  {
-    slug: "how-to-make-chatgpt-text-undetectable",
-    title: "How to Make ChatGPT Text Undetectable in 2026",
-    excerpt:
-      "Learn proven techniques to humanize AI-generated text so it passes Turnitin, GPTZero, and Originality.ai detection with confidence.",
-    date: "2026-05-15",
-    readTime: "6 min read",
-  },
-  {
-    slug: "ai-vs-human-writing-the-differences",
-    title: "AI Writing vs Human Writing: The Key Differences",
-    excerpt:
-      "What separates machine-generated text from human prose? We analyze sentence patterns, vocabulary choice, and the subtle markers AI detectors look for.",
-    date: "2026-05-08",
-    readTime: "5 min read",
-  },
-  {
-    slug: "best-academic-writing-tools-2026",
-    title: "Best Academic Writing Tools 2026 — Compared",
-    excerpt:
-      "Side-by-side comparison of AcademiaAI, Grammarly, QuillBot, and other top tools. Which one actually saves you time and improves your grades?",
-    date: "2026-05-01",
-    readTime: "7 min read",
-  },
-];
+async function getPosts() {
+  const postsDirectory = path.join(process.cwd(), "src/app/blog/posts");
+  if (!fs.existsSync(postsDirectory)) return [];
+  
+  const filenames = fs.readdirSync(postsDirectory);
 
-export default function BlogIndex() {
+  const posts = filenames.map((filename) => {
+    const filePath = path.join(postsDirectory, filename);
+    const fileContents = fs.readFileSync(filePath, "utf8");
+    const { data } = matter(fileContents);
+    const slug = filename.replace(/\.mdx$/, "");
+
+    return {
+      slug,
+      title: data.title,
+      description: data.description,
+      date: data.date,
+      readTime: data.readTime,
+    };
+  });
+
+  // Sort posts by date descending
+  return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+}
+
+export default async function BlogIndex() {
+  const posts = await getPosts();
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black">
       <section className="flex flex-col items-center justify-center min-h-[40vh] px-4 text-center gap-6 border-b">
@@ -49,32 +52,36 @@ export default function BlogIndex() {
         </p>
       </section>
 
-      <section className="max-w-3xl mx-auto px-4 py-16">
-        <div className="flex flex-col gap-10">
+      <section className="max-w-5xl mx-auto px-4 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {posts.map((post) => (
             <article
               key={post.slug}
-              className="group"
+              className="group p-6 rounded-2xl border bg-white dark:bg-zinc-900 shadow-sm hover:shadow-md transition-all flex flex-col"
             >
-              <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
-                <Calendar className="size-3.5" />
-                <span>{post.date}</span>
-                <Clock className="size-3.5 ml-2" />
-                <span>{post.readTime}</span>
+              <div className="flex items-center gap-3 text-xs text-muted-foreground mb-4">
+                <div className="flex items-center gap-1.5 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-md">
+                  <Calendar className="size-3" />
+                  <span>{new Date(post.date).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-md">
+                  <Clock className="size-3" />
+                  <span>{post.readTime}</span>
+                </div>
               </div>
               <Link href={`/blog/${post.slug}`}>
-                <h2 className="text-2xl font-semibold group-hover:text-primary transition-colors mb-2">
+                <h2 className="text-xl font-bold group-hover:text-primary transition-colors mb-3 leading-tight">
                   {post.title}
                 </h2>
               </Link>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                {post.excerpt}
+              <p className="text-sm text-muted-foreground leading-relaxed mb-6 flex-grow">
+                {post.description}
               </p>
               <Link
                 href={`/blog/${post.slug}`}
-                className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
               >
-                Read more <ArrowRight className="size-3.5" />
+                Read article <ArrowRight className="size-3.5" />
               </Link>
             </article>
           ))}
@@ -88,7 +95,7 @@ export default function BlogIndex() {
             Try AcademiaAI free — humanize text, enhance academic writing, and more.
           </p>
           <Link href="/signup">
-            <Button size="lg" className="text-base px-8 h-12">
+            <Button size="lg" className="text-base px-8 h-12 rounded-xl">
               Get started free
             </Button>
           </Link>

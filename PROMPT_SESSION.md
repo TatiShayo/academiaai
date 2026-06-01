@@ -1,113 +1,38 @@
-You are a senior fullstack engineer. Continue building academiaai autonomously.
+Build the Blog & Content Engine for AcademiaAI.
 
-SESSION STATE:
-Tasks remaining: 84
-Tasks completed: 57
-Current phase: 99|## PHASE 11: SEO & CONTENT ENGINE
-Recent commits:
-4164b5c done: PHASE 11 — Blog infrastructure (/blog, @next/mdx, 3 seed posts with internal CTAs linking to tools)
-65a166a done: PHASE 11 — Individual tool SEO pages (/tools/humanizer, /tools/enhancer, /tools/plagiarism, /tools/citations) with unique title, meta, H1, demo, FAQ schema, CTA
-fe75c20 done: PHASE 11 — Add structured data JSON-LD (SoftwareApplication schema) to landing page
-f76fa5c done: PHASE 9 — API v1 endpoints (enhance, citations), API docs page (/docs/api), API rate limiting (100req/day)
-7c576d3 done: PHASE 10 — Affiliate program stub (/affiliates page with 30% recurring commission, waitlist form)
+You are a senior fullstack engineer. Read existing code patterns and build exactly what follows.
 
-KNOWN ISSUES FROM PREVIOUS SESSIONS:
-# AcademiaAI Learnings & Known Issues
+═══ CURRENT STATE ═══
+Build passes. All 4 tools (humanizer, enhancer, plagiarism, citations) work. Landing page, dashboard, API access, launch prep all done.
 
+═══ TASKS ═══
 
-═══ PRODUCT SPECIFICATION (from batch2-build-prompts) ═══
-## PROMPT 3 — BUILD ACADEMIAAI
-*(Open academiaai/ in a new CMD → paste this)*
+Task 1: Blog infrastructure
+Create files:
+- src/app/blog/page.tsx — blog listing page, server component that reads MDX files from a /blog/posts directory. Show post cards with title, excerpt, date, read time. 2-col grid on desktop.
+- src/app/blog/[slug]/page.tsx — blog post page, server component that renders MDX content. Has back link, social share buttons.
+Generate 3 seed MDX posts at src/app/blog/posts/ as .mdx files:
+1. "How to Make ChatGPT Text Undetectable" — tips on humanizing AI text
+2. "AI Writing vs Human Writing: The Differences" — comparison article  
+3. "Best Academic Writing Tools 2026" — listicle with AcademiaAI features
 
----
+Task 2: Internal linking
+Update landing page (src/app/page.tsx) to link to blog from a "Resources" section in the footer.
+Update blog posts to link back to relevant tool pages (/tools/humanizer, etc.).
 
-```
-You are a senior fullstack engineer. Build AcademiaAI — a complete AI academic writing tool SaaS — in this Next.js project. YOLO MODE. Build everything. No questions.
+Task 3: SEO metadata upgrade
+Update src/app/layout.tsx with comprehensive SEO: open graph, twitter cards, structured data.
+Add sitemap generation — src/app/sitemap.ts with all dynamic routes.
 
-═══════════════════════════════════════
-PRODUCT OVERVIEW
-═══════════════════════════════════════
-AcademiaAI gives students and researchers 4 AI tools: humanize AI text, enhance academic writing, scan plagiarism risk, and generate citations. The owner already has this pipeline — we're packaging it as a SaaS.
+Task 4: robots.txt
+File: src/app/robots.ts
+Allow all crawlers, point to sitemap.
 
-Tagline: "Your work. Just better."
-Target: University students, researchers, academic writers, ESL students globally.
+═══ DESIGN ═══
+Clean blog design: white background, serif font for article body (use existing font system).
+Blog cards: rounded corners, subtle shadow, date + read time badge.
+Matches existing AcademiaAI design system.
+Use next-mdx-remote for MDX rendering.
 
-Pricing:
-- Free: 3 documents/month, Humanizer only, basic mode
-- Pro ($19/mo): Unlimited documents, all 4 tools, all enhancement levels, saved library
-- Pay-per-doc ($5): Single document credit, no subscription needed (Stripe Payment Link)
-
-═══════════════════════════════════════
-TECH STACK
-═══════════════════════════════════════
-- Next.js 14 App Router + TypeScript
-- Supabase (auth + DB + storage)
-- Stripe (subscriptions + one-time payments)
-- OpenAI GPT-4o (not mini — quality is the product here)
-- Resend (emails)
-- shadcn/ui + Tailwind (dark, indigo accent #6366f1)
-- diff library (show what changed between original and processed)
-- Framer Motion + Sonner + Slider (shadcn)
-
-═══════════════════════════════════════
-ALL PAGES TO BUILD
-═══════════════════════════════════════
-
-1. LANDING PAGE (src/app/page.tsx)
-   - Navbar: logo, "Tools", Pricing, Login, "Try Free"
-   - Hero: "Your Work. Just Better." Large headline. Subtitle: "Humanize AI text, elevate academic tone, and reduce plagiarism risk — all in one place." Email capture + "Get Started Free" button.
-   - LIVE DEMO WIDGET (most important landing page element):
-     * A textarea pre-filled with obviously AI-generated text (robotic, repetitive)
-     * A "Humanize" button
-     * Below it: the result appears, showing the transformed text with a subtle diff highlight of changed phrases
-     * This is static/mocked HTML animation — not a real API call on the landing page
-   - 4 Tool cards with icons: Humanizer, Academic Enhancer, Plagiarism Risk Scanner, Citation Generator
-   - How it works: 3 steps (Paste your text → Choose your tool → Get instant results)
-   - Trust signals: "Used by students at 50+ universities", lock icon "Your text is never stored after processing" (privacy message)
-   - Comparison: AcademiaAI vs Grammarly vs QuillBot vs Undetectable.ai (features + price)
-   - Pricing: 3 cards (Free / Pro $19/mo / Pay-per-doc $5) — emphasize pay-per-doc option for people who don't want subscriptions
-   - Student testimonials: 3 realistic quotes
-   - FAQ: 8 questions (is it detectable, which detectors does it beat, is my text stored, can I use it for dissertation, etc.)
-   - Footer with privacy policy mention
-
-2. AUTH: login, signup, reset, callback (standard)
-
-3. DASHBOARD (src/app/dashboard/page.tsx)
-   - Clean tool launcher layout (not a typical dashboard — more like a home screen)
-   - Sidebar: logo, tool links (Humanize, Enhance, Plagiarism, Citations, My Documents), account
-   - Usage card: "X of 3 free documents used this month" with progress bar — if Pro, shows "Unlimited"
-   - 4 large tool cards with color icons, name, one-line description, "Open Tool" button
-   - Recent documents section: last 5 processed docs with tool used, word count, date, "Open" link
-   - Tip of the day: rotating academic writing tip
-   - Pro upsell banner (for free users): "Need more? Go Pro for unlimited + all tools"
-
-4. TOOL 1 — HUMANIZER (src/app/dashboard/humanize/page.tsx)
-   - Left panel (input): large textarea "Paste your AI-generated text here", word count live counter, detect input language badge
-   - Right panel (output): shows processed result, word count
-   - Humanization level: segmented control — Subtle (light touch) | Balanced (recommended) | Aggressive (complete restyle)
-   - "Humanize" button with loadin
-═══ END SPEC ═══
-
-STARTUP SEQUENCE (do this first, every session):
-1. Run: git log --oneline -10
-2. Run: npm run build 2>&1 | tail -20
-3. Run: npx tsc --noEmit 2>&1 | head -15
-4. Read PLAN.md — find the first unchecked [ ] task in the lowest-numbered phase
-5. Read LEARNINGS.md — avoid known blocked approaches
-
-LOOP PROTOCOL:
-Read PLAN.md → first [ ] task → implement it → run npm run build (must pass) →
-git add -A && git commit -m "done: [task name]" → mark [x] in PLAN.md →
-append to PROGRESS.md → move to next task IMMEDIATELY.
-
-Never stop between tasks.
-Never ask for confirmation.
-Never wait for input.
-If a task fails twice: write to LEARNINGS.md as BLOCKED, skip it, continue to next.
-Install any npm package you need: npm install [package].
-Search the web if stuck on an error.
-
-Build exactly to the PRODUCT SPECIFICATION above. Every page, feature, and design detail must match.
-
-You have 84 tasks remaining. Complete as many as possible before context runs out.
-Start now. First task. Go.
+═══ RULES ═══
+Output COMPLETE file contents. npm run build must pass. Create all files. Install next-mdx-remote if needed.

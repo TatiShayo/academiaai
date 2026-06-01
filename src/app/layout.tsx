@@ -25,21 +25,37 @@ export const metadata: Metadata = {
     "AI to human text converter",
     "academic enhancer",
   ],
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://academiaai.com"),
   openGraph: {
     title: "AcademiaAI — AI Text Humanizer | Your work. Just better.",
     description:
       "Undetectable AI text humanizer, academic writing tool, plagiarism risk scanner, and citation generator.",
     type: "website",
     siteName: "AcademiaAI",
+    locale: "en_US",
+    url: "https://academiaai.com",
   },
   twitter: {
     card: "summary_large_image",
     title: "AcademiaAI — AI Text Humanizer | Your work. Just better.",
     description:
       "Undetectable AI text humanizer, academic writing tool, plagiarism risk scanner, and citation generator.",
+    creator: "@academiaai",
   },
-  robots: { index: true, follow: true },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: "https://academiaai.com",
+  },
 };
 
 export default function RootLayout({

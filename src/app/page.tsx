@@ -298,8 +298,34 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-12 text-center text-sm text-muted-foreground">
-        <p>© 2026 AcademiaAI. Built for students and researchers.</p>
+      <footer className="border-t py-16 bg-white dark:bg-black">
+        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
+          <div className="flex flex-col gap-4">
+            <h3 className="font-bold">Tools</h3>
+            <Link href="/tools/humanizer" className="text-muted-foreground hover:text-primary">AI Humanizer</Link>
+            <Link href="/tools/enhancer" className="text-muted-foreground hover:text-primary">Academic Enhancer</Link>
+            <Link href="/tools/plagiarism" className="text-muted-foreground hover:text-primary">Plagiarism Scanner</Link>
+            <Link href="/tools/citations" className="text-muted-foreground hover:text-primary">Citation Generator</Link>
+          </div>
+          <div className="flex flex-col gap-4">
+            <h3 className="font-bold">Resources</h3>
+            <Link href="/blog" className="text-muted-foreground hover:text-primary">Blog</Link>
+            <Link href="/docs/api" className="text-muted-foreground hover:text-primary">API Docs</Link>
+          </div>
+          <div className="flex flex-col gap-4">
+            <h3 className="font-bold">Company</h3>
+            <Link href="/affiliates" className="text-muted-foreground hover:text-primary">Affiliate Program</Link>
+            <Link href="/login" className="text-muted-foreground hover:text-primary">Sign In</Link>
+            <Link href="/signup" className="text-muted-foreground hover:text-primary">Sign Up</Link>
+          </div>
+          <div className="flex flex-col gap-4">
+            <h3 className="font-bold">AcademiaAI</h3>
+            <p className="text-muted-foreground leading-relaxed">
+              Your work. Just better. The complete academic writing pipeline.
+            </p>
+            <p className="text-muted-foreground mt-2">© 2026 AcademiaAI.</p>
+          </div>
+        </div>
       </footer>
     </div>
   );
