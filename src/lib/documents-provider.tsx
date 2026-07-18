@@ -40,6 +40,8 @@ export function DocumentsProvider({ children }: { children: ReactNode }) {
           folder: d.folder ?? null,
           versions: d.versions ?? [],
         }));
+        // One-time hydration from the localStorage external store on mount.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setDocuments(migrated);
       } catch {
         // ignore

@@ -17,7 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Dynamic blog routes
   const postsDirectory = path.join(process.cwd(), "src/app/blog/posts");
-  let blogRoutes: any[] = [];
+  let blogRoutes: MetadataRoute.Sitemap = [];
   
   if (fs.existsSync(postsDirectory)) {
     const filenames = fs.readdirSync(postsDirectory);
