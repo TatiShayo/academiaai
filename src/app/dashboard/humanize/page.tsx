@@ -59,14 +59,14 @@ export default function HumanizerPage() {
       const res = await fetch('/api/tools/humanize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: inputText, level }),
+        body: JSON.stringify({ text: inputText, level: level.toLowerCase() }),
       });
       const data = await res.json();
       if (res.ok) {
-        setHumanizedText(data.humanizedText);
-        setBeforeScore(data.beforeScore);
-        setAfterScore(data.afterScore);
-        addActivityLog('Humanizer', `Humanized text (${level} level)`, `AI score: ${data.beforeScore}% -> ${data.afterScore}%`);
+        setHumanizedText(data.humanized);
+        setBeforeScore(data.aiScoreBefore);
+        setAfterScore(data.aiScoreAfter);
+        addActivityLog('Humanizer', `Humanized text (${level} level)`, `AI score: ${data.aiScoreBefore}% -> ${data.aiScoreAfter}%`);
       } else {
         alert(data.error || 'Failed to process request');
       }

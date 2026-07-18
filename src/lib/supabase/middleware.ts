@@ -5,10 +5,11 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./env";
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
-  // e2e bypass is a test-only affordance and must be disabled in production so
-  // it cannot be used to skip authentication.
+  // e2e bypass is a test-only affordance, enabled only when the server is
+  // started with E2E_TEST_MODE=true so it can never be used to skip auth in a
+  // real production deployment.
   const isE2E =
-    process.env.NODE_ENV !== "production" &&
+    process.env.E2E_TEST_MODE === "true" &&
     request.nextUrl.searchParams.get("e2e") === "true";
   if (isE2E) {
     supabaseResponse.cookies.set("e2e-bypass", "true", { httpOnly: true, sameSite: "lax", path: "/" });

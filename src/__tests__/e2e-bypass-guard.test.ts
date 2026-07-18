@@ -8,9 +8,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
  * could set it and obtain an authenticated, unlimited context: bypassing auth,
  * rate limiting AND per-user quota on every LLM endpoint (denial-of-wallet).
  *
- * The fix gates the bypass to non-production only. This test proves that in a
- * production build the cookie no longer grants access and an unauthenticated
- * caller is rejected with 401.
+ * The fix gates the bypass behind an explicit E2E_TEST_MODE=true opt-in that
+ * production deployments never set. This test proves that without that flag the
+ * cookie no longer grants access and an unauthenticated caller is rejected with
+ * 401, while a test-mode server still permits it.
  */
 
 const { mockCookies, mockGetUser } = vi.hoisted(() => ({
@@ -44,8 +45,8 @@ describe("e2e-bypass guard", () => {
     vi.unstubAllEnvs();
   });
 
-  it("ignores the bypass cookie in production and rejects with 401", async () => {
-    vi.stubEnv("NODE_ENV", "production");
+  it("ignores the bypass cookie when E2E_TEST_MODE is unset and rejects with 401", async () => {
+    vi.stubEnv("E2E_TEST_MODE", "");
     const { checkUsage } = await import("@/lib/tool-guard");
 
     const result = await checkUsage();
@@ -55,8 +56,8 @@ describe("e2e-bypass guard", () => {
     expect(result.error!.status).toBe(401);
   });
 
-  it("still allows the bypass in non-production (test/dev) for e2e runs", async () => {
-    vi.stubEnv("NODE_ENV", "test");
+  it("allows the bypass only when the server is explicitly in E2E_TEST_MODE", async () => {
+    vi.stubEnv("E2E_TEST_MODE", "true");
     const { checkUsage } = await import("@/lib/tool-guard");
 
     const result = await checkUsage();

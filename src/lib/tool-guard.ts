@@ -10,10 +10,11 @@ export interface UsageGuard {
 }
 
 export async function checkUsage(): Promise<UsageGuard> {
-  // The e2e-bypass cookie must NEVER be honoured in production — otherwise any
-  // client can set it and skip authentication, rate limiting and quota
-  // (auth bypass + denial-of-wallet). Restricted to non-production builds.
-  if (process.env.NODE_ENV !== "production") {
+  // The e2e-bypass cookie must ONLY be honoured when the server is explicitly
+  // started in test mode (E2E_TEST_MODE=true). A real production deployment
+  // never sets this, so an attacker cannot forge the cookie to skip
+  // authentication, rate limiting and quota (auth bypass + denial-of-wallet).
+  if (process.env.E2E_TEST_MODE === "true") {
     const jar = await cookies();
     if (jar.get("e2e-bypass")?.value === "true") {
       return { userId: "e2e-test-user" };
