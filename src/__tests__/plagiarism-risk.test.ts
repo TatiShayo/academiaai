@@ -7,7 +7,7 @@ const { mockChat, mockCheckUsage, mockTrackUsage } = vi.hoisted(() => ({
   mockTrackUsage: vi.fn(),
 }));
 
-vi.mock("@/lib/openai", () => ({ chat: mockChat, wrapUntrusted: (t) => t }));
+vi.mock("@/lib/openai", () => ({ chat: mockChat, wrapUntrusted: (t: string) => t }));
 vi.mock("@/lib/tool-guard", () => ({
   checkUsage: mockCheckUsage,
   trackUsage: mockTrackUsage,
