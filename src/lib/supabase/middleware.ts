@@ -4,9 +4,13 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
-  const isE2E = request.nextUrl.searchParams.get("e2e") === "true";
+  // e2e bypass is a test-only affordance and must be disabled in production so
+  // it cannot be used to skip authentication.
+  const isE2E =
+    process.env.NODE_ENV !== "production" &&
+    request.nextUrl.searchParams.get("e2e") === "true";
   if (isE2E) {
-    supabaseResponse.cookies.set("e2e-bypass", "true", { httpOnly: false, sameSite: "lax", path: "/" });
+    supabaseResponse.cookies.set("e2e-bypass", "true", { httpOnly: true, sameSite: "lax", path: "/" });
     const path = request.nextUrl.pathname;
     if (path === "/") {
       const url = request.nextUrl.clone();

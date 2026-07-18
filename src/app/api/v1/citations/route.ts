@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { chat } from "@/lib/openai";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { chat, wrapUntrusted } from "@/lib/openai";
 import { checkApiRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   }
 
   const apiKey = authHeader.slice(7);
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: keyRecord, error: keyError } = await supabase
     .from("api_keys")
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
   try {
     const result = await chat([
       { role: "system", content: `You are a citation generator. Generate a citation in ${fmt} format for the given source. Return ONLY the formatted citation, no explanations or additional text.` },
-      { role: "user", content: source },
+      { role: "user", content: wrapUntrusted(source) },
     ]);
 
     return NextResponse.json({

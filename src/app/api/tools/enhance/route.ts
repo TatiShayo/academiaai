@@ -1,67 +1,70 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { callOpenAI, mockEnhance } from '../../../../lib/openai';
+import { NextRequest, NextResponse } from "next/server";
+import { chat, wrapUntrusted } from "@/lib/openai";
+import { checkUsage, trackUsage } from "@/lib/tool-guard";
+import { enhanceSchema } from "@/lib/schemas";
+
+const LEVEL_PROMPT: Record<string, string> = {
+  "High School": "Rewrite at a high-school academic level. Use clear, straightforward language.",
+  Undergraduate: "Rewrite at an undergraduate level. Use formal academic language and proper terminology.",
+  Masters: "Rewrite at a Master's level. Use sophisticated vocabulary and complex sentence structures.",
+  PhD: "Rewrite at a PhD level. Use dense theoretical vocabulary and rigorous argumentation.",
+};
+
+/** Simple word-level change highlights between original and enhanced text. */
+function computeChanges(original: string, enhanced: string) {
+  const a = original.split(/\s+/).filter(Boolean);
+  const b = enhanced.split(/\s+/).filter(Boolean);
+  const changes: Array<{ from: string; to: string }> = [];
+  const len = Math.min(a.length, b.length);
+  for (let i = 0; i < len; i++) {
+    if (a[i].toLowerCase() !== b[i].toLowerCase()) changes.push({ from: a[i], to: b[i] });
+  }
+  return changes;
+}
 
 export async function POST(req: NextRequest) {
-  let body;
+  const guard = await checkUsage();
+  if (guard.error) return guard.error;
+  const userId = guard.userId!;
+
+  let raw: unknown;
   try {
-    body = await req.json();
+    raw = await req.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON request' }, { status: 400 });
+    return NextResponse.json({ error: "Invalid JSON request" }, { status: 400 });
   }
 
-  const { text, level } = body;
-  if (text === undefined || text === null || typeof text !== 'string') {
-    return NextResponse.json({ error: 'Invalid or missing text field' }, { status: 400 });
+  const parsed = enhanceSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid input" },
+      { status: 400 }
+    );
   }
-
-  if (text.length > 50000) {
-    return NextResponse.json({ error: 'Text content exceeds the maximum limit of 50,000 characters' }, { status: 400 });
-  }
-
-  if (level !== undefined && level !== null && !['High School', 'Undergraduate', "Master's", 'PhD'].includes(level)) {
-    return NextResponse.json({ error: 'Invalid enhancement level' }, { status: 400 });
-  }
+  const { text, level } = parsed.data;
 
   try {
-    const currentLevel = level || 'Undergraduate';
+    const enhanced = await chat([
+      {
+        role: "system",
+        content:
+          `You are an academic writing expert. ${LEVEL_PROMPT[level] ?? LEVEL_PROMPT.Undergraduate} ` +
+          "Improve vocabulary, sentence structure, and academic tone. Return ONLY the enhanced text, no explanations.",
+      },
+      { role: "user", content: wrapUntrusted(text) },
+    ]);
 
-    const systemPrompt = `You are an expert academic writer and proofreader. Rewrite the text submitted by the user to reflect a high-quality academic tone matching the "${currentLevel}" level. 
-You must respond with a JSON object in this format:
-{
-  "enhancedText": "The fully rewritten and enhanced academic text",
-  "improvements": [
-    "Upgraded vocabulary from 'good' to 'salient'",
-    "Restructured complex sentence clauses for precision",
-    "Introduced formal transition markers"
-  ]
-}
-Academic Levels guidelines:
-- High School: Clean grammar, logical structure, simple formal phrasing.
-- Undergraduate: Clear argument, elevated academic vocabulary, passive/active synthesis.
-- Master's: High scholarly standard, deep vocabulary density, conceptual precision.
-- PhD: Doctoral dissertation standard, maximal precision, rigorous objective syntax.`;
+    const wordCount = text.split(/\s+/).filter(Boolean).length;
+    await trackUsage(userId, wordCount);
 
-    const openAiResponse = await callOpenAI(text, systemPrompt, true);
-
-    if (openAiResponse) {
-      try {
-        const parsed = JSON.parse(openAiResponse);
-        if (parsed.enhancedText && Array.isArray(parsed.improvements)) {
-          return NextResponse.json({
-            enhancedText: parsed.enhancedText,
-            improvements: parsed.improvements,
-          });
-        }
-      } catch (err) {
-        console.error('Failed to parse OpenAI JSON response for enhance:', err);
-      }
-    }
-
-    // Fallback to mock
-    const mockResult = mockEnhance(text, currentLevel);
-    return NextResponse.json(mockResult);
+    return NextResponse.json({
+      original: text,
+      enhanced,
+      level,
+      changes: computeChanges(text, enhanced),
+    });
   } catch (error) {
-    console.error('Error in enhance API:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error("Error in enhance API:", error);
+    return NextResponse.json({ error: "Failed to enhance text" }, { status: 500 });
   }
 }

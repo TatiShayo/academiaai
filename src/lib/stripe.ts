@@ -3,7 +3,7 @@ import Stripe from "stripe";
 const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY ?? "";
 
 export const stripe = new Stripe(STRIPE_SECRET, {
-  apiVersion: "2026-05-27.dahlia",
+  apiVersion: "2026-06-24.dahlia",
 });
 
 export const STRIPE_PUBLISHABLE = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";

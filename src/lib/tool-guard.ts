@@ -4,10 +4,20 @@ import { canProcess, incrementUsage, incrementWordsProcessed, getUsage } from "@
 import { checkRateLimit } from "@/lib/rate-limit";
 import { cookies } from "next/headers";
 
-export async function checkUsage() {
-  const jar = await cookies();
-  if (jar.get("e2e-bypass")?.value === "true") {
-    return { userId: "e2e-test-user" };
+export interface UsageGuard {
+  userId?: string;
+  error?: NextResponse;
+}
+
+export async function checkUsage(): Promise<UsageGuard> {
+  // The e2e-bypass cookie must NEVER be honoured in production — otherwise any
+  // client can set it and skip authentication, rate limiting and quota
+  // (auth bypass + denial-of-wallet). Restricted to non-production builds.
+  if (process.env.NODE_ENV !== "production") {
+    const jar = await cookies();
+    if (jar.get("e2e-bypass")?.value === "true") {
+      return { userId: "e2e-test-user" };
+    }
   }
 
   const supabase = await createClient();

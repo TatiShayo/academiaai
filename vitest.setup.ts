@@ -1,17 +1,5 @@
-import { vi } from "vitest";
-
-vi.mock("@/lib/openai", () => ({
-  chat: vi.fn(),
-}));
-
-vi.mock("@/lib/supabase/server", () => ({
-  createClient: vi.fn(),
-}));
-
-vi.mock("@/lib/supabase/admin", () => ({
-  createAdminClient: vi.fn(),
-}));
-
-vi.mock("next/headers", () => ({
-  headers: vi.fn(() => new Map()),
-}));
+// Per-test-file mocks are declared with vi.hoisted()/vi.mock() inside each
+// suite so they can control return values. Keeping this setup file free of
+// global module mocks avoids clobbering suites (e.g. openai.test.ts) that need
+// the real implementation.
+export {};

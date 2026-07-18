@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { chat } from "@/lib/openai";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { chat, wrapUntrusted } from "@/lib/openai";
 import { incrementWordsProcessed } from "@/lib/usage";
 import { checkApiRateLimit } from "@/lib/rate-limit";
 
@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
   }
 
   const apiKey = authHeader.slice(7);
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: keyRecord, error: keyError } = await supabase
     .from("api_keys")
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
   try {
     const result = await chat([
       { role: "system", content: `You are an AI text humanizer. ${prompt} Return ONLY the humanized text, no explanations.` },
-      { role: "user", content: text },
+      { role: "user", content: wrapUntrusted(text) },
     ]);
 
     const wordCount = text.split(/\s+/).filter(Boolean).length;

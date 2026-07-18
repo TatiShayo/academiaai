@@ -1,79 +1,45 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { callOpenAI, mockCitation } from '../../../../lib/openai';
+import { NextRequest, NextResponse } from "next/server";
+import { chat, wrapUntrusted } from "@/lib/openai";
+import { checkUsage, trackUsage } from "@/lib/tool-guard";
+import { citationsSchema } from "@/lib/schemas";
 
 export async function POST(req: NextRequest) {
-  let body;
+  const guard = await checkUsage();
+  if (guard.error) return guard.error;
+  const userId = guard.userId!;
+
+  let raw: unknown;
   try {
-    body = await req.json();
+    raw = await req.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON request' }, { status: 400 });
+    return NextResponse.json({ error: "Invalid JSON request" }, { status: 400 });
   }
 
-  const { style, url, title, author, year, publisher } = body;
-
-  if (title === undefined || title === null || typeof title !== 'string') {
-    return NextResponse.json({ error: 'Invalid or missing title field' }, { status: 400 });
+  const parsed = citationsSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid input" },
+      { status: 400 }
+    );
   }
-
-  if (title.length > 50000) {
-    return NextResponse.json({ error: 'Title content exceeds the maximum limit of 50,000 characters' }, { status: 400 });
-  }
-
-  if (style !== undefined && style !== null && !['APA', 'MLA', 'Chicago', 'Harvard'].includes(style)) {
-    return NextResponse.json({ error: 'Invalid citation style' }, { status: 400 });
-  }
-
-  if (url !== undefined && url !== null && typeof url !== 'string') {
-    return NextResponse.json({ error: 'URL must be a string' }, { status: 400 });
-  }
-  if (author !== undefined && author !== null && typeof author !== 'string') {
-    return NextResponse.json({ error: 'Author must be a string' }, { status: 400 });
-  }
-  if (year !== undefined && year !== null && typeof year !== 'string') {
-    return NextResponse.json({ error: 'Year must be a string' }, { status: 400 });
-  }
-  if (publisher !== undefined && publisher !== null && typeof publisher !== 'string') {
-    return NextResponse.json({ error: 'Publisher must be a string' }, { status: 400 });
-  }
+  const { source, format } = parsed.data;
 
   try {
+    const citation = await chat([
+      {
+        role: "system",
+        content:
+          `You are a citation generator. Generate a citation in ${format} format for the given source. ` +
+          "Return ONLY the formatted citation, no explanations.",
+      },
+      { role: "user", content: wrapUntrusted(source) },
+    ]);
 
-    const currentStyle = style || 'APA';
+    await trackUsage(userId);
 
-    const systemPrompt = `You are a citation compiler. Generate a clean academic citation for the given details in the requested style: "${currentStyle}". 
-You must respond with a JSON object in this format:
-{
-  "citation": "Formatted citation string"
-}
-Ensure it follows standard style guidelines (APA 7th, MLA 9th, Chicago 17th, Harvard).`;
-
-    const details = `Style: ${currentStyle}
-Title: ${title}
-Author: ${author || 'Unknown'}
-Year: ${year || 'n.d.'}
-Publisher: ${publisher || 'n.p.'}
-URL: ${url || 'N/A'}`;
-
-    const openAiResponse = await callOpenAI(details, systemPrompt, true);
-
-    if (openAiResponse) {
-      try {
-        const parsed = JSON.parse(openAiResponse);
-        if (parsed.citation) {
-          return NextResponse.json({
-            citation: parsed.citation,
-          });
-        }
-      } catch (err) {
-        console.error('Failed to parse OpenAI JSON response for citations:', err);
-      }
-    }
-
-    // Fallback to mock
-    const citation = mockCitation({ style: currentStyle, url, title, author, year, publisher });
-    return NextResponse.json({ citation });
+    return NextResponse.json({ source, format, citation });
   } catch (error) {
-    console.error('Error in citations API:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error("Error in citations API:", error);
+    return NextResponse.json({ error: "Failed to generate citation" }, { status: 500 });
   }
 }

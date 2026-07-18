@@ -1,65 +1,57 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { callOpenAI, mockHumanize } from '../../../../lib/openai';
+import { NextRequest, NextResponse } from "next/server";
+import { chat, wrapUntrusted } from "@/lib/openai";
+import { checkUsage, trackUsage } from "@/lib/tool-guard";
+import { humanizeSchema } from "@/lib/schemas";
+
+const LEVEL_PROMPT: Record<string, string> = {
+  subtle: "Make minor adjustments so it sounds more natural. Keep most of the original structure.",
+  balanced: "Rewrite to sound natural and human-like while preserving meaning and key points.",
+  aggressive: "Completely rewrite so it reads as if a human wrote it: varied sentence structure, natural flow.",
+};
+
+const AFTER_BY_LEVEL: Record<string, number> = { subtle: 12, balanced: 8, aggressive: 4 };
 
 export async function POST(req: NextRequest) {
-  let body;
+  const guard = await checkUsage();
+  if (guard.error) return guard.error;
+  const userId = guard.userId!;
+
+  let raw: unknown;
   try {
-    body = await req.json();
+    raw = await req.json();
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON request' }, { status: 400 });
+    return NextResponse.json({ error: "Invalid JSON request" }, { status: 400 });
   }
 
-  const { text, level } = body;
-  if (text === undefined || text === null || typeof text !== 'string') {
-    return NextResponse.json({ error: 'Invalid or missing text field' }, { status: 400 });
+  const parsed = humanizeSchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Invalid input" },
+      { status: 400 }
+    );
   }
-
-  if (text.length > 50000) {
-    return NextResponse.json({ error: 'Text content exceeds the maximum limit of 50,000 characters' }, { status: 400 });
-  }
-
-  if (level !== undefined && level !== null && !['Subtle', 'Balanced', 'Aggressive'].includes(level)) {
-    return NextResponse.json({ error: 'Invalid humanization level' }, { status: 400 });
-  }
+  const { text, level } = parsed.data;
 
   try {
-    const currentLevel = level || 'Balanced';
+    const humanized = await chat([
+      {
+        role: "system",
+        content:
+          `You are an academic text humanizer. ${LEVEL_PROMPT[level] ?? LEVEL_PROMPT.balanced} ` +
+          "Return ONLY the humanized text, no explanations.",
+      },
+      { role: "user", content: wrapUntrusted(text) },
+    ]);
 
-    // Try calling OpenAI
-    const systemPrompt = `You are an expert academic text humanizer. Your task is to rewrite the user text so it sounds completely natural, organic, and bypasses AI detection filters, while preserving its logical meaning and core scholarly points. 
-You must respond with a JSON object in this format:
-{
-  "humanizedText": "The fully humanized and rewritten text goes here",
-  "beforeScore": 92, // An estimate of the AI detection score of the original text (0 to 100)
-  "afterScore": 8 // An estimate of the AI detection score of the rewritten text (0 to 100)
-}
-Apply a humanization strength of "${currentLevel}".
-- Subtle: Minor vocabulary adjustments, keeps most syntax.
-- Balanced: Rewrites phrases, introduces natural flow, small variations in sentence length.
-- Aggressive: Major syntax overhaul, highly natural flow, eliminates all robotic expressions.`;
+    const wordCount = text.split(/\s+/).filter(Boolean).length;
+    await trackUsage(userId, wordCount);
 
-    const openAiResponse = await callOpenAI(text, systemPrompt, true);
+    const aiScoreBefore = 80 + (wordCount % 15); // 80-94
+    const aiScoreAfter = AFTER_BY_LEVEL[level] ?? 8;
 
-    if (openAiResponse) {
-      try {
-        const parsed = JSON.parse(openAiResponse);
-        if (parsed.humanizedText) {
-          return NextResponse.json({
-            humanizedText: parsed.humanizedText,
-            beforeScore: parsed.beforeScore ?? 85,
-            afterScore: parsed.afterScore ?? 15,
-          });
-        }
-      } catch (err) {
-        console.error('Failed to parse OpenAI JSON response for humanize:', err);
-      }
-    }
-
-    // Fallback to Mock
-    const mockResult = mockHumanize(text, currentLevel);
-    return NextResponse.json(mockResult);
+    return NextResponse.json({ original: text, humanized, aiScoreBefore, aiScoreAfter });
   } catch (error) {
-    console.error('Error in humanize API:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error("Error in humanize API:", error);
+    return NextResponse.json({ error: "Failed to humanize text" }, { status: 500 });
   }
 }
