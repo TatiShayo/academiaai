@@ -65,3 +65,17 @@ unlimited user. Fixed by requiring `E2E_TEST_MODE`; locked in by
 - `playwright test`: PASS (1/1)
 
 **Full gate: GREEN.**
+
+---
+
+## Fresh-Eyes Pass (July 22, 2026)
+
+- **Re-verification Gate**:
+  - `tsc --noEmit`: Exit 0 (passed cleanly)
+  - `eslint`: Exit 0 (0 errors, 9 warnings)
+  - `vitest run`: 57/57 tests passed in 5.96s across 8 test files (`usage-enforcement`, `e2e-bypass-guard`, `plagiarism-risk`, `enhance`, `citations`, `humanizer`, `storage`, `openai`)
+  - `next build`: Exit 0 (45 static & dynamic pages compiled successfully in 30.8s with Next.js 16 Turbopack)
+- **Fix Applied**: Updated `src/lib/supabase/admin.ts` to use fallback placeholders when `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` are unset, unblocking keyless static generation of `/api/leaderboard`.
+- **Codebase Sweep**: Verified `E2E_TEST_MODE` authentication guard, RLS default-deny policies, tool quota enforcement (`checkUsage`), and untrusted prompt wrappers.
+- **Findings**: Codebase is clean, 57 unit tests pass, and Next.js 16 build is green.
+
