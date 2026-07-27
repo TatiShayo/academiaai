@@ -2,10 +2,10 @@
   "schema": "hermes.tests.v6",
   "run_id": "hermes-2026-07-27-v6-academiaai",
   "project": "academiaai",
-  "produced_at": "2026-07-27T22:34:48.077060",
+  "produced_at": "2026-07-27T23:02:07.278991",
   "summary": {
     "status": "RUNNABLE",
-    "passed": 1,
+    "passed": 0,
     "failed": 0,
     "skipped": 0,
     "unrunnable": 0
@@ -14,8 +14,8 @@
     {
       "suite": "TypeScript Compilation",
       "tool": "npx tsc --noEmit",
-      "status": "PASS",
-      "exit_code": 0
+      "status": "SKIPPED",
+      "exit_code": -1
     }
   ]
 }
