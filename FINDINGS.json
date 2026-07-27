@@ -3,7 +3,7 @@
   "run_id": "hermes-2026-07-27-v6-academiaai",
   "project": "academiaai",
   "phase": "4.0",
-  "produced_at": "2026-07-27T23:11:26.307333",
+  "produced_at": "2026-07-27T23:16:37.524540",
   "runner_tier": "T1",
   "mode": "static-only",
   "findings": []
