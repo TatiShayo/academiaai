@@ -40,8 +40,8 @@ if (typeof setInterval !== "undefined") {
 }
 
 const apiRateLimitMap = new Map<string, { count: number; dayStart: number }>();
-const API_LIMIT_PRO = 100;
-const API_LIMIT_BUSINESS = 1000;
+export const API_LIMIT_PRO = 100;
+export const API_LIMIT_BUSINESS = 1000;
 
 export function checkApiRateLimit(userId: string): { allowed: boolean; remaining: number } {
   const now = Date.now();

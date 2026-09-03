@@ -14,7 +14,6 @@ function formatNumber(n: number): string {
 }
 
 export function WordCounter({ className }: { className?: string }) {
-  const [target, setTarget] = useState(0);
   const [label, setLabel] = useState("words");
 
   const spring = useSpring(0, { stiffness: 80, damping: 20, mass: 0.5 });
@@ -25,7 +24,6 @@ export function WordCounter({ className }: { className?: string }) {
       .then((r) => r.json())
       .then((data) => {
         const total = data.totalWordsProcessed || 0;
-        setTarget(total);
         setLabel(formatLabel(total));
         spring.set(total);
       })

@@ -22,22 +22,31 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-  const { source, format } = parsed.data;
+
+  const data = parsed.data;
+  const style = (data.style || data.format || "APA");
+  const sourceText = data.source || (data.title ? `${data.title} by ${data.author || "Anonymous"}` : "Source");
 
   try {
     const citation = await chat([
       {
         role: "system",
         content:
-          `You are a citation generator. Generate a citation in ${format} format for the given source. ` +
-          "Return ONLY the formatted citation, no explanations.",
+          `You are an expert citation generator. Generate an accurate citation in ${style} format for the given academic source metadata. ` +
+          "Return ONLY the formatted citation, no explanations or conversational prefixes.",
       },
-      { role: "user", content: wrapUntrusted(source) },
+      { role: "user", content: wrapUntrusted(sourceText) },
     ]);
 
     await trackUsage(userId);
 
-    return NextResponse.json({ source, format, citation });
+    return NextResponse.json({
+      source: sourceText,
+      title: data.title,
+      format: style,
+      style,
+      citation,
+    });
   } catch (error) {
     console.error("Error in citations API:", error);
     return NextResponse.json({ error: "Failed to generate citation" }, { status: 500 });

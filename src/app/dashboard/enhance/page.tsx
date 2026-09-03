@@ -65,9 +65,9 @@ export default function EnhancerPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setEnhancedText(data.enhancedText);
-        setImprovements(data.improvements);
-        addActivityLog('Academic Enhancer', `Enhanced text to ${level} level`, `${data.improvements.length} improvements applied`);
+        setEnhancedText(data.enhancedText || data.enhanced || '');
+        setImprovements(data.improvements || []);
+        addActivityLog('Academic Enhancer', `Enhanced text to ${level} level`, `${(data.improvements || []).length} improvements applied`);
       } else {
         alert(data.error || 'Failed to process request');
       }

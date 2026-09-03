@@ -39,3 +39,26 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Universal HERMES Ignore Rules
+node_modules/
+.npm-cache/
+dist/
+build/
+.turbo/
+.vercel/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+venv/
+.venv/
+env/
+*.egg-info/
+.env.local
+.env.*.local
+*.log
+$null
+*.zip
+Thumbs.db

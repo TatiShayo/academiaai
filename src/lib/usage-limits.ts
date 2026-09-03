@@ -1,10 +1,10 @@
 "use client";
 
 const KEY = "academiaai_usage";
-const FREE_LIMIT = 3;
-const UNLOCKED_LIMIT = 1;
+export const FREE_LIMIT = 3;
+export const UNLOCKED_LIMIT = 1;
 
-interface UsageData {
+export interface UsageData {
   count: number;
   month: string; // "YYYY-MM"
   plan: "free" | "pro" | "unlocked";
@@ -35,7 +35,7 @@ export function getUsage(): UsageData {
   const data = readUsage();
   const currentMonth = getMonth();
   if (data.month !== currentMonth) {
-    const reset = { count: 0, month: currentMonth, plan: data.plan };
+    const reset: UsageData = { count: 0, month: currentMonth, plan: data.plan };
     writeUsage(reset);
     return reset;
   }
@@ -53,7 +53,7 @@ export function isOverLimit(): boolean {
   const data = getUsage();
   if (data.plan === "pro") return false;
   if (data.plan === "unlocked") return data.count >= UNLOCKED_LIMIT;
-  return data.count > FREE_LIMIT;
+  return data.count >= FREE_LIMIT;
 }
 
 export function canProcess(): boolean {
@@ -69,6 +69,10 @@ export function unlockSingle() {
 
 export function setPro() {
   writeUsage({ count: 0, month: getMonth(), plan: "pro" });
+}
+
+export function setFree() {
+  writeUsage({ count: 0, month: getMonth(), plan: "free" });
 }
 
 export function getRemaining(): number {

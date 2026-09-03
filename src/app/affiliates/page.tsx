@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, DollarSign, Send } from "lucide-react";
+import { DollarSign, Send } from "lucide-react";
 
 export default function AffiliatesPage() {
   return (

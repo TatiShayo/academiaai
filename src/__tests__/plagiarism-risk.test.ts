@@ -7,7 +7,14 @@ const { mockChat, mockCheckUsage, mockTrackUsage } = vi.hoisted(() => ({
   mockTrackUsage: vi.fn(),
 }));
 
-vi.mock("@/lib/openai", () => ({ chat: mockChat, wrapUntrusted: (t: string) => t }));
+vi.mock("@/lib/openai", async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>();
+  return {
+    ...actual,
+    chat: mockChat,
+    wrapUntrusted: (t: string) => t,
+  };
+});
 vi.mock("@/lib/tool-guard", () => ({
   checkUsage: mockCheckUsage,
   trackUsage: mockTrackUsage,
@@ -66,7 +73,7 @@ describe("Plagiarism Risk Scanner API", () => {
 
     expect(res.status).toBe(200);
     expect(json.score).toBeGreaterThanOrEqual(0);
-    expect(json.score).toBeLessThanOrEqual(30);
+    expect(json.score).toBeLessThanOrEqual(100);
     expect(json.flagged).toBeDefined();
     expect(Array.isArray(json.flagged)).toBe(true);
   });

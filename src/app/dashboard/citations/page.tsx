@@ -2,14 +2,21 @@
 
 import React, { useState, useEffect } from 'react';
 import { getDraft, setDraft, saveDocument, addActivityLog } from '../../../lib/storage';
+import type { CitationStyle } from '../../../lib/citation-engine';
 
 interface CitationFields {
-  style: 'APA' | 'MLA' | 'Chicago' | 'Harvard';
+  style: CitationStyle;
   title: string;
   author: string;
   year: string;
   publisher: string;
+  journal: string;
+  volume: string;
+  issue: string;
+  pages: string;
+  doi: string;
   url: string;
+  rawSource: string;
 }
 
 export default function CitationsPage() {
@@ -19,8 +26,15 @@ export default function CitationsPage() {
     author: '',
     year: '',
     publisher: '',
+    journal: '',
+    volume: '',
+    issue: '',
+    pages: '',
+    doi: '',
     url: '',
+    rawSource: '',
   });
+  const [inputMode, setInputMode] = useState<'structured' | 'raw'>('structured');
   const [generatedCitation, setGeneratedCitation] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
@@ -34,6 +48,7 @@ export default function CitationsPage() {
     const savedDraft = getDraft<{
       fields: CitationFields;
       generatedCitation: string;
+      inputMode?: 'structured' | 'raw';
     }>('citations', {
       fields: {
         style: 'APA',
@@ -41,14 +56,22 @@ export default function CitationsPage() {
         author: '',
         year: '',
         publisher: '',
+        journal: '',
+        volume: '',
+        issue: '',
+        pages: '',
+        doi: '',
         url: '',
+        rawSource: '',
       },
       generatedCitation: '',
+      inputMode: 'structured',
     });
 
     const loadTimer = setTimeout(() => {
       setFields(savedDraft.fields);
       setGeneratedCitation(savedDraft.generatedCitation);
+      if (savedDraft.inputMode) setInputMode(savedDraft.inputMode);
     }, 0);
 
     return () => clearTimeout(loadTimer);
@@ -56,8 +79,8 @@ export default function CitationsPage() {
 
   // Autosave draft
   useEffect(() => {
-    if (fields.title || fields.author || generatedCitation) {
-      setDraft('citations', { fields, generatedCitation });
+    if (fields.title || fields.author || fields.rawSource || generatedCitation) {
+      setDraft('citations', { fields, generatedCitation, inputMode });
       const timer = setTimeout(() => {
         setDraftSaved(true);
       }, 0);
@@ -67,21 +90,45 @@ export default function CitationsPage() {
         clearTimeout(timer2);
       };
     }
-  }, [fields, generatedCitation]);
+  }, [fields, generatedCitation, inputMode]);
 
   const handleGenerate = async () => {
-    if (!fields.title.trim()) return;
+    const hasInput = inputMode === 'structured' ? fields.title.trim() : fields.rawSource.trim();
+    if (!hasInput) return;
+
     setIsLoading(true);
     try {
+      const payload = inputMode === 'structured'
+        ? {
+            style: fields.style,
+            format: fields.style,
+            title: fields.title,
+            author: fields.author,
+            year: fields.year,
+            publisher: fields.publisher,
+            journal: fields.journal,
+            volume: fields.volume,
+            issue: fields.issue,
+            pages: fields.pages,
+            doi: fields.doi,
+            url: fields.url,
+          }
+        : {
+            style: fields.style,
+            format: fields.style,
+            source: fields.rawSource,
+          };
+
       const res = await fetch('/api/tools/citations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(fields),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (res.ok) {
         setGeneratedCitation(data.citation);
-        addActivityLog('Citation Generator', `Generated citation in ${fields.style} style`, fields.title);
+        const titleRef = fields.title || fields.rawSource.slice(0, 40);
+        addActivityLog('Citation Generator', `Generated citation in ${fields.style} style`, titleRef);
       } else {
         alert(data.error || 'Failed to process request');
       }
@@ -102,12 +149,14 @@ export default function CitationsPage() {
 
   const handleSaveDoc = () => {
     if (!generatedCitation.trim()) return;
-    const title = saveTitle.trim() || `Citation - ${fields.title || 'Source Reference'}`;
+    const title = saveTitle.trim() || `Citation - ${fields.title || fields.rawSource.slice(0, 30) || 'Source Reference'}`;
     
     saveDocument({
       title,
       tool: 'Citation Generator',
-      originalText: `Source detail:\nTitle: ${fields.title}\nAuthor: ${fields.author}\nYear: ${fields.year}\nPublisher: ${fields.publisher}\nURL: ${fields.url}`,
+      originalText: inputMode === 'structured'
+        ? `Title: ${fields.title}\nAuthor: ${fields.author}\nYear: ${fields.year}\nPublisher: ${fields.publisher}\nJournal: ${fields.journal}\nDOI: ${fields.doi}\nURL: ${fields.url}`
+        : fields.rawSource,
       processedText: generatedCitation,
       wordCount: generatedCitation.split(/\s+/).filter(Boolean).length,
       metadata: { style: fields.style, fields }
@@ -125,13 +174,15 @@ export default function CitationsPage() {
     setFields((prev) => ({ ...prev, [key]: value }));
   };
 
+  const supportedStyles: CitationStyle[] = ['APA', 'MLA', 'Chicago', 'Harvard', 'IEEE', 'BibTeX'];
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">Citation Generator</h1>
-          <p className="text-sm text-slate-400 mt-0.5">Generates properly structured bibliographical references for essays and reviews.</p>
+          <p className="text-sm text-slate-400 mt-0.5">Generates properly structured bibliographical references in APA 7th, MLA 9th, Chicago, Harvard, IEEE, and BibTeX.</p>
         </div>
         {/* Autosave Badge */}
         <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-mono transition-all duration-300 ${
@@ -147,22 +198,44 @@ export default function CitationsPage() {
       {/* Main Container Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Fields configuration - Left */}
-        <div className="lg:col-span-7 bg-[#111118] border border-[#1e1e2e] rounded-xl p-5 flex flex-col h-[520px]">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider font-mono mb-4">Metadata Form</span>
+        <div className="lg:col-span-7 bg-[#111118] border border-[#1e1e2e] rounded-xl p-5 flex flex-col h-[560px]">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider font-mono">Citation Metadata</span>
+            
+            {/* Mode switch */}
+            <div className="flex bg-[#09090f] border border-[#1e1e2e] rounded-lg p-0.5">
+              <button
+                onClick={() => setInputMode('structured')}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-all ${
+                  inputMode === 'structured' ? 'bg-[#6366f1] text-white' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Form
+              </button>
+              <button
+                onClick={() => setInputMode('raw')}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-all ${
+                  inputMode === 'raw' ? 'bg-[#6366f1] text-white' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Raw Text
+              </button>
+            </div>
+          </div>
 
           {/* Form items */}
-          <div className="flex-1 space-y-4 overflow-y-auto pr-1">
+          <div className="flex-1 space-y-3.5 overflow-y-auto pr-1">
             {/* Style tabs */}
             <div>
-              <label className="text-[11px] text-slate-500 font-mono uppercase block mb-2">Bibliography Style</label>
-              <div className="flex gap-1.5">
-                {(['APA', 'MLA', 'Chicago', 'Harvard'] as const).map((s) => (
+              <label className="text-[11px] text-slate-500 font-mono uppercase block mb-1.5">Bibliography Style</label>
+              <div className="flex flex-wrap gap-1.5">
+                {supportedStyles.map((s) => (
                   <button
                     key={s}
                     onClick={() => handleFieldChange('style', s)}
                     className={`px-3 py-1.5 rounded-md text-xs font-semibold font-mono transition-all ${
                       fields.style === s
-                        ? 'bg-[#6366f1] text-white'
+                        ? 'bg-[#6366f1] text-white shadow-sm'
                         : 'border border-[#1e1e2e] bg-[#09090f] text-slate-400 hover:text-white'
                     }`}
                   >
@@ -172,73 +245,149 @@ export default function CitationsPage() {
               </div>
             </div>
 
-            {/* Document Title */}
-            <div>
-              <label className="text-[11px] text-slate-500 font-mono uppercase block mb-1.5">Source Title <span className="text-red-500">*</span></label>
-              <input
-                type="text"
-                value={fields.title}
-                onChange={(e) => handleFieldChange('title', e.target.value)}
-                placeholder="e.g. The Theory of Moral Sentiments"
-                className="w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-3 text-sm text-slate-200 placeholder-slate-700 focus:outline-none focus:border-[#6366f1] font-sans"
-              />
-            </div>
-
-            {/* Authors */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {inputMode === 'raw' ? (
               <div>
-                <label className="text-[11px] text-slate-500 font-mono uppercase block mb-1.5">Author / Editor</label>
-                <input
-                  type="text"
-                  value={fields.author}
-                  onChange={(e) => handleFieldChange('author', e.target.value)}
-                  placeholder="e.g. Smith, Adam"
-                  className="w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-3 text-sm text-slate-200 placeholder-slate-700 focus:outline-none focus:border-[#6366f1] font-sans"
+                <label className="text-[11px] text-slate-500 font-mono uppercase block mb-1.5">
+                  Raw Bibliographic Text / DOI / URL <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={fields.rawSource}
+                  onChange={(e) => handleFieldChange('rawSource', e.target.value)}
+                  placeholder="Paste article title, DOI (e.g. 10.1038/nature12373), URL, or unformatted reference string..."
+                  className="w-full h-48 bg-[#09090f] border border-[#1e1e2e] rounded-lg p-3 text-sm text-slate-200 placeholder-slate-700 focus:outline-none focus:border-[#6366f1] font-sans resize-none"
                 />
               </div>
+            ) : (
+              <>
+                {/* Document Title */}
+                <div>
+                  <label className="text-[11px] text-slate-500 font-mono uppercase block mb-1">
+                    Source Title <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={fields.title}
+                    onChange={(e) => handleFieldChange('title', e.target.value)}
+                    placeholder="e.g. The Theory of Moral Sentiments"
+                    className="w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-2.5 text-sm text-slate-200 placeholder-slate-700 focus:outline-none focus:border-[#6366f1] font-sans"
+                  />
+                </div>
 
-              <div>
-                <label className="text-[11px] text-slate-500 font-mono uppercase block mb-1.5">Year of Publication</label>
-                <input
-                  type="text"
-                  value={fields.year}
-                  onChange={(e) => handleFieldChange('year', e.target.value)}
-                  placeholder="e.g. 1759"
-                  className="w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-3 text-sm text-slate-200 placeholder-slate-700 focus:outline-none focus:border-[#6366f1] font-sans"
-                />
-              </div>
-            </div>
+                {/* Authors & Year */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] text-slate-500 font-mono uppercase block mb-1">Author / Editor</label>
+                    <input
+                      type="text"
+                      value={fields.author}
+                      onChange={(e) => handleFieldChange('author', e.target.value)}
+                      placeholder="e.g. Smith, Adam"
+                      className="w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-2.5 text-sm text-slate-200 placeholder-slate-700 focus:outline-none focus:border-[#6366f1] font-sans"
+                    />
+                  </div>
 
-            {/* Publisher / URL */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="text-[11px] text-slate-500 font-mono uppercase block mb-1.5">Publisher / Journal</label>
-                <input
-                  type="text"
-                  value={fields.publisher}
-                  onChange={(e) => handleFieldChange('publisher', e.target.value)}
-                  placeholder="e.g. Millar & Kincaid"
-                  className="w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-3 text-sm text-slate-200 placeholder-slate-700 focus:outline-none focus:border-[#6366f1] font-sans"
-                />
-              </div>
+                  <div>
+                    <label className="text-[11px] text-slate-500 font-mono uppercase block mb-1">Year of Publication</label>
+                    <input
+                      type="text"
+                      value={fields.year}
+                      onChange={(e) => handleFieldChange('year', e.target.value)}
+                      placeholder="e.g. 1759"
+                      className="w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-2.5 text-sm text-slate-200 placeholder-slate-700 focus:outline-none focus:border-[#6366f1] font-sans"
+                    />
+                  </div>
+                </div>
 
-              <div>
-                <label className="text-[11px] text-slate-500 font-mono uppercase block mb-1.5">Resource URL</label>
-                <input
-                  type="text"
-                  value={fields.url}
-                  onChange={(e) => handleFieldChange('url', e.target.value)}
-                  placeholder="e.g. https://domain.edu/moral-sentiments"
-                  className="w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-3 text-sm text-slate-200 placeholder-slate-700 focus:outline-none focus:border-[#6366f1] font-sans"
-                />
-              </div>
-            </div>
+                {/* Journal / Publisher */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] text-slate-500 font-mono uppercase block mb-1">Journal / Container</label>
+                    <input
+                      type="text"
+                      value={fields.journal}
+                      onChange={(e) => handleFieldChange('journal', e.target.value)}
+                      placeholder="e.g. Journal of Economic Perspectives"
+                      className="w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-2.5 text-sm text-slate-200 placeholder-slate-700 focus:outline-none focus:border-[#6366f1] font-sans"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] text-slate-500 font-mono uppercase block mb-1">Publisher</label>
+                    <input
+                      type="text"
+                      value={fields.publisher}
+                      onChange={(e) => handleFieldChange('publisher', e.target.value)}
+                      placeholder="e.g. Oxford University Press"
+                      className="w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-2.5 text-sm text-slate-200 placeholder-slate-700 focus:outline-none focus:border-[#6366f1] font-sans"
+                    />
+                  </div>
+                </div>
+
+                {/* Vol / Issue / Pages */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-[11px] text-slate-500 font-mono uppercase block mb-1">Volume</label>
+                    <input
+                      type="text"
+                      value={fields.volume}
+                      onChange={(e) => handleFieldChange('volume', e.target.value)}
+                      placeholder="e.g. 12"
+                      className="w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-2.5 text-sm text-slate-200 placeholder-slate-700 focus:outline-none focus:border-[#6366f1] font-sans"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-500 font-mono uppercase block mb-1">Issue</label>
+                    <input
+                      type="text"
+                      value={fields.issue}
+                      onChange={(e) => handleFieldChange('issue', e.target.value)}
+                      placeholder="e.g. 4"
+                      className="w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-2.5 text-sm text-slate-200 placeholder-slate-700 focus:outline-none focus:border-[#6366f1] font-sans"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-500 font-mono uppercase block mb-1">Pages</label>
+                    <input
+                      type="text"
+                      value={fields.pages}
+                      onChange={(e) => handleFieldChange('pages', e.target.value)}
+                      placeholder="e.g. 45-62"
+                      className="w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-2.5 text-sm text-slate-200 placeholder-slate-700 focus:outline-none focus:border-[#6366f1] font-sans"
+                    />
+                  </div>
+                </div>
+
+                {/* DOI / URL */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] text-slate-500 font-mono uppercase block mb-1">DOI</label>
+                    <input
+                      type="text"
+                      value={fields.doi}
+                      onChange={(e) => handleFieldChange('doi', e.target.value)}
+                      placeholder="e.g. 10.1038/nature12373"
+                      className="w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-2.5 text-sm text-slate-200 placeholder-slate-700 focus:outline-none focus:border-[#6366f1] font-sans"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-slate-500 font-mono uppercase block mb-1">Resource URL</label>
+                    <input
+                      type="text"
+                      value={fields.url}
+                      onChange={(e) => handleFieldChange('url', e.target.value)}
+                      placeholder="e.g. https://domain.edu/paper"
+                      className="w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-2.5 text-sm text-slate-200 placeholder-slate-700 focus:outline-none focus:border-[#6366f1] font-sans"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="mt-4 pt-4 border-t border-[#1e1e2e] flex justify-end">
             <button
               onClick={handleGenerate}
-              disabled={isLoading || !fields.title.trim()}
+              disabled={isLoading || (inputMode === 'structured' ? !fields.title.trim() : !fields.rawSource.trim())}
               className="px-6 py-3 bg-[#6366f1] text-white rounded-lg hover:bg-indigo-600 font-medium text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(99,102,241,0.2)]"
             >
               {isLoading ? (
@@ -262,17 +411,17 @@ export default function CitationsPage() {
         </div>
 
         {/* Output rendering - Right */}
-        <div className="lg:col-span-5 bg-[#111118] border border-[#1e1e2e] rounded-xl p-5 flex flex-col h-[520px]">
+        <div className="lg:col-span-5 bg-[#111118] border border-[#1e1e2e] rounded-xl p-5 flex flex-col h-[560px]">
           <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider font-mono mb-4">Compiled Citation</span>
           
           <div className="flex-1 w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-5 flex items-center justify-center text-center">
             {generatedCitation ? (
-              <div className="space-y-4">
-                <p className="text-sm text-slate-100 font-mono italic select-text p-4 bg-[#111118]/80 border border-[#1e1e2e] rounded-lg leading-relaxed max-w-sm mx-auto shadow-sm">
-                  &quot;{generatedCitation}&quot;
-                </p>
+              <div className="space-y-4 w-full">
+                <div className="text-sm text-slate-100 font-mono p-4 bg-[#111118]/80 border border-[#1e1e2e] rounded-lg leading-relaxed max-w-sm mx-auto shadow-sm whitespace-pre-wrap text-left select-text">
+                  {generatedCitation}
+                </div>
                 <div className="inline-flex gap-2">
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/10 border border-[#6366f1]/20 text-[#6366f1] uppercase">
+                  <span className="text-[10px] font-mono px-2.5 py-0.5 rounded bg-indigo-500/10 border border-[#6366f1]/20 text-[#6366f1] uppercase font-bold">
                     Style: {fields.style}
                   </span>
                 </div>
@@ -284,7 +433,7 @@ export default function CitationsPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                   </svg>
                 </div>
-                <p className="max-w-[200px]">Fill in the metadata form and generate to view formatted reference structures.</p>
+                <p className="max-w-[200px]">Fill in the metadata form or paste raw text to compile formatted reference structures.</p>
               </div>
             )}
           </div>

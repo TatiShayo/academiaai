@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScanSearch, Check, ArrowRight, Shield } from "lucide-react";
+import { ScanSearch, ArrowRight, Shield } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Plagiarism Risk Scanner — Check Papers Before Submission | AcademiaAI",

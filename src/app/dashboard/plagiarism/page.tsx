@@ -69,9 +69,11 @@ export default function PlagiarismScannerPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setRiskScore(data.riskScore);
-        setFlaggedSentences(data.flaggedSentences);
-        addActivityLog('Plagiarism Scanner', 'Scanned text for citation risk', `Risk Score: ${data.riskScore}% | Flagged: ${data.flaggedSentences.length} items`);
+        const score = data.riskScore ?? data.score ?? 0;
+        const flagged = data.flaggedSentences ?? data.flagged ?? [];
+        setRiskScore(score);
+        setFlaggedSentences(flagged);
+        addActivityLog('Plagiarism Scanner', 'Scanned text for citation risk', `Risk Score: ${score}% | Flagged: ${flagged.length} items`);
       } else {
         alert(data.error || 'Failed to process request');
       }

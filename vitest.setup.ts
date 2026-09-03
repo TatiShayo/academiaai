@@ -1,5 +1,31 @@
-// Per-test-file mocks are declared with vi.hoisted()/vi.mock() inside each
-// suite so they can control return values. Keeping this setup file free of
-// global module mocks avoids clobbering suites (e.g. openai.test.ts) that need
-// the real implementation.
+// Global setup for Vitest
+const store: Record<string, string> = {};
+
+const localStorageMock = {
+  getItem: (key: string) => store[key] ?? null,
+  setItem: (key: string, value: string) => {
+    store[key] = String(value);
+  },
+  removeItem: (key: string) => {
+    delete store[key];
+  },
+  clear: () => {
+    for (const k in store) delete store[k];
+  },
+  key: (index: number) => Object.keys(store)[index] ?? null,
+  get length() {
+    return Object.keys(store).length;
+  },
+};
+
+const g = globalThis as Record<string, unknown>;
+
+if (typeof g.window === "undefined") {
+  g.window = globalThis;
+}
+
+if (typeof g.localStorage === "undefined") {
+  g.localStorage = localStorageMock;
+}
+
 export {};

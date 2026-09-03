@@ -79,7 +79,7 @@ function AnimatedWord({ children, delay }: { children: React.ReactNode; delay: n
 
 export function DiffView({ original, processed }: DiffViewProps) {
   const changes = computeDiff(original, processed);
-  const { added, removed } = countChangedWords(changes);
+  const { added } = countChangedWords(changes);
   const aiPhrasesRemoved = countAiPhrases(changes);
 
   let animationIndex = 0;

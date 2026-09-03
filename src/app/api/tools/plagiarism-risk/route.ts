@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { chat, wrapUntrusted } from "@/lib/openai";
+import { chat, mockPlagiarism, wrapUntrusted } from "@/lib/openai";
 import { checkUsage, trackUsage } from "@/lib/tool-guard";
 import { plagiarismRiskSchema } from "@/lib/schemas";
 
-interface PlagiarismResult {
-  score: number;
-  flagged: Array<{ sentence: string; risk: string; reason: string }>;
+interface FlaggedItem {
+  sentence: string;
+  risk: "High" | "Medium" | "Low" | string;
+  reason?: string;
+  explanation?: string;
+  suggestion?: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -29,35 +32,44 @@ export async function POST(req: NextRequest) {
   }
   const { text } = parsed.data;
 
-  // Deterministic low-risk fallback used when the model is unavailable or
-  // returns non-JSON — keeps the endpoint usable without leaking failures.
-  const fallback: PlagiarismResult = { score: text.length % 25, flagged: [] };
-
   try {
     const response = await chat([
       {
         role: "system",
         content:
           "You are a plagiarism risk scanner. Analyse the text and respond ONLY with JSON of the form " +
-          '{"score": <0-100>, "flagged": [{"sentence": string, "risk": "low"|"medium"|"high", "reason": string}]}.',
+          '{"score": <0-100>, "flagged": [{"sentence": string, "risk": "High"|"Medium"|"low"|"medium", "reason": string, "suggestion": string}]}.',
       },
       { role: "user", content: wrapUntrusted(text) },
     ]);
 
+    const p = JSON.parse(response);
+    const score = typeof p.score === "number" ? p.score : 0;
+    const mappedFlagged: FlaggedItem[] = Array.isArray(p.flagged)
+      ? p.flagged.map((f: Record<string, unknown>) => ({
+          sentence: String(f.sentence || ""),
+          risk: String(f.risk || "Medium"),
+          reason: String(f.reason || f.explanation || "Matches known academic literature styles."),
+          explanation: String(f.explanation || f.reason || "Matches known academic literature styles."),
+          suggestion: String(f.suggestion || "Paraphrase or include citation reference."),
+        }))
+      : [];
+
     await trackUsage(userId);
-
-    let result: PlagiarismResult = fallback;
-    try {
-      const p = JSON.parse(response);
-      if (typeof p.score === "number" && Array.isArray(p.flagged)) result = p;
-    } catch {
-      // non-JSON model output -> deterministic fallback
-    }
-
-    return NextResponse.json(result);
+    return NextResponse.json({
+      score,
+      riskScore: score,
+      flagged: mappedFlagged,
+      flaggedSentences: mappedFlagged,
+    });
   } catch (error) {
-    console.error("Error in plagiarism API:", error);
-    // Model transport failure: degrade gracefully rather than 500.
-    return NextResponse.json(fallback);
+    console.error("Error in plagiarism API, using fallback:", error);
+    const fallback = mockPlagiarism(text);
+    return NextResponse.json({
+      score: fallback.score,
+      riskScore: fallback.riskScore,
+      flagged: fallback.flagged,
+      flaggedSentences: fallback.flaggedSentences,
+    });
   }
 }

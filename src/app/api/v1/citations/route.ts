@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { chat, wrapUntrusted } from "@/lib/openai";
 import { checkApiRateLimit } from "@/lib/rate-limit";
+import { formatCitation, parseRawCitation, type CitationStyle } from "@/lib/citation-engine";
 
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return NextResponse.json({ error: "Missing or invalid Authorization header. Use: Bearer YOUR_API_KEY" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Missing or invalid Authorization header. Use: Bearer YOUR_API_KEY" },
+      { status: 401 }
+    );
   }
 
   const apiKey = authHeader.slice(7);
@@ -35,26 +39,66 @@ export async function POST(request: NextRequest) {
     .update({ last_used_at: new Date().toISOString() })
     .eq("api_key", apiKey);
 
-  const { source, format } = await request.json();
-
-  if (!source || typeof source !== "string") {
-    return NextResponse.json({ error: "Field 'source' is required" }, { status: 400 });
+  let body: Record<string, unknown> | null = null;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body in request" }, { status: 400 });
   }
 
-  const fmt = (format && typeof format === "string") ? format : "APA";
+  const source = body?.source || body?.title;
+  const format = (body?.format || body?.style || "APA") as CitationStyle;
+
+  if (!source || typeof source !== "string") {
+    return NextResponse.json({ error: "Field 'source' or 'title' is required" }, { status: 400 });
+  }
 
   try {
-    const result = await chat([
-      { role: "system", content: `You are a citation generator. Generate a citation in ${fmt} format for the given source. Return ONLY the formatted citation, no explanations or additional text.` },
-      { role: "user", content: wrapUntrusted(source) },
-    ]);
+    let result = "";
+    if (process.env.OPENAI_API_KEY) {
+      try {
+        result = await chat([
+          {
+            role: "system",
+            content: `You are an academic citation generator. Generate a citation in ${format} format for the given source. Return ONLY the formatted citation, no explanations or additional text.`,
+          },
+          { role: "user", content: wrapUntrusted(source) },
+        ]);
+      } catch (e) {
+        console.error("v1 citations OpenAI error, falling back:", e);
+      }
+    }
+
+    if (!result) {
+      if (body.title || body.author || body.year) {
+        result = formatCitation(
+          {
+            title: body.title || source,
+            author: body.author,
+            year: body.year,
+            publisher: body.publisher,
+            journal: body.journal,
+            volume: body.volume,
+            issue: body.issue,
+            pages: body.pages,
+            url: body.url,
+            doi: body.doi,
+          },
+          format
+        );
+      } else {
+        const meta = parseRawCitation(source);
+        result = formatCitation(meta, format);
+      }
+    }
 
     return NextResponse.json({
       source,
-      format: fmt,
+      format,
       citation: result,
     });
-  } catch {
+  } catch (err) {
+    console.error("Error in v1 citations:", err);
     return NextResponse.json({ error: "Failed to generate citation" }, { status: 500 });
   }
 }
