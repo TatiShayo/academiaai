@@ -1,18 +1,19 @@
-# AcademiaAI — Product Spec
+# SPEC 001: Academic Reference Extraction & BibTeX Generator
 
-**Tagline:** "Your work. Just better."
+## Problem Statement
+Scholars spend hours correcting garbled reference lists and debugging LaTeX compilation errors caused by malformed BibTeX entries.
 
-**Problem:** Students and researchers use AI but need it undetectable + academically polished.
+## Solution
+An automated reference extractor that parses messy citation text, resolves official DOIs, and exports validated BibTeX and APA/MLA files.
 
-**Solution:** AI humanizer + academic enhancer + plagiarism-risk scorer. You have the pipeline already.
+## User Stories
+1. As a researcher, I want to paste a messy reference list and receive clean BibTeX entries, so that my LaTeX manuscript builds without errors.
+2. As a student, I want missing DOIs looked up automatically, so that my citations are academically complete.
 
-**Pricing:**
-- Free: 3 docs/mo
-- Pro: $19/mo (unlimited, all tools)
-- Pay-per-doc: $5/doc (no sub needed)
+## Implementation Decisions
+- Citation edge-case tokenizer in `src/lib/citations.ts`.
+- LaTeX escaping engine in `src/lib/bibtex.ts`.
 
-**Kills:** Grammarly Business ($25/mo, no AI humanizing), QuillBot ($9.95/mo, basic), Undetectable.ai ($10/mo, limited)
-
-**Stack:** Next.js 14 App Router, Supabase, Stripe, OpenAI, Resend
-
-**Target:** Students and researchers needing AI-undetectable academic writing
+## Testing Decisions
+- Seam: `src/__tests__/citation-edge-cases.test.ts`.
+- Verify institutional parsing, multi-author et al. handling, and special character sanitization.
