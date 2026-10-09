@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { chat, wrapUntrusted } from "@/lib/openai";
 import { checkApiRateLimit } from "@/lib/rate-limit";
 import { formatCitation, parseRawCitation, type CitationStyle } from "@/lib/citation-engine";
+import { resolveApiKey } from "@/lib/api-key-auth";
 
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
@@ -14,30 +14,19 @@ export async function POST(request: NextRequest) {
   }
 
   const apiKey = authHeader.slice(7);
-  const supabase = createAdminClient();
+  const resolved = await resolveApiKey(apiKey);
 
-  const { data: keyRecord, error: keyError } = await supabase
-    .from("api_keys")
-    .select("user_id, revoked")
-    .eq("api_key", apiKey)
-    .single();
-
-  if (keyError || !keyRecord || keyRecord.revoked) {
+  if (!resolved) {
     return NextResponse.json({ error: "Invalid or revoked API key" }, { status: 401 });
   }
 
-  const rateCheck = checkApiRateLimit(keyRecord.user_id);
+  const rateCheck = checkApiRateLimit(resolved.userId);
   if (!rateCheck.allowed) {
     return NextResponse.json(
       { error: "API rate limit exceeded. Try again tomorrow." },
       { status: 429 }
     );
   }
-
-  await supabase
-    .from("api_keys")
-    .update({ last_used_at: new Date().toISOString() })
-    .eq("api_key", apiKey);
 
   let body: Record<string, unknown> | null = null;
   try {

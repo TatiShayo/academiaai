@@ -11,7 +11,7 @@ import { Key, Copy, Trash2, Plus } from "lucide-react";
 type ApiKey = {
   id: string;
   name: string;
-  api_key: string;
+  key_prefix: string;
   created_at: string;
   last_used_at: string | null;
   revoked: boolean;
@@ -140,7 +140,7 @@ export default function SettingsPage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{key.name}</p>
                     <p className="text-xs text-muted-foreground font-mono truncate">
-                      {key.api_key.slice(0, 12)}...
+                      {key.key_prefix}...
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Created {new Date(key.created_at).toLocaleDateString()}
