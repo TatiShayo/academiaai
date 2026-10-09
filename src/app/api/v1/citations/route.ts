@@ -46,6 +46,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body in request" }, { status: 400 });
   }
 
+  if (!body || typeof body !== "object") {
+    return NextResponse.json({ error: "Invalid JSON body in request" }, { status: 400 });
+  }
+
   const source = body?.source || body?.title;
   const format = (body?.format || body?.style || "APA") as CitationStyle;
 
@@ -70,19 +74,25 @@ export async function POST(request: NextRequest) {
     }
 
     if (!result) {
+      // Coerce the unvalidated JSON fields to the metadata types; anything of
+      // the wrong shape is dropped rather than trusted.
+      const str = (v: unknown): string | undefined => (typeof v === "string" && v ? v : undefined);
+      const num = (v: unknown): number | undefined =>
+        typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" && !Number.isNaN(Number(v)) ? Number(v) : undefined;
+
       if (body.title || body.author || body.year) {
         result = formatCitation(
           {
-            title: body.title || source,
-            author: body.author,
-            year: body.year,
-            publisher: body.publisher,
-            journal: body.journal,
-            volume: body.volume,
-            issue: body.issue,
-            pages: body.pages,
-            url: body.url,
-            doi: body.doi,
+            title: str(body.title) || source,
+            author: str(body.author),
+            year: num(body.year),
+            publisher: str(body.publisher),
+            journal: str(body.journal),
+            volume: num(body.volume),
+            issue: num(body.issue),
+            pages: str(body.pages),
+            url: str(body.url),
+            doi: str(body.doi),
           },
           format
         );

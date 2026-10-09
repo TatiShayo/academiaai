@@ -396,6 +396,8 @@ export function generateBibTeX(meta: CitationMetadata, citeKey?: string): string
   const authors = parseAuthors(meta.authors || meta.author);
   const authorBib = authors
     .map((a) => {
+      // Corporate authors carry an inner brace pair so BibTeX does not
+      // case-fold the organisation name; the outer pair is added below.
       if (a.isOrganization) return `{${a.lastName}}`;
       const first = [a.firstName, a.middleName].filter(Boolean).join(" ");
       return first ? `${a.lastName}, ${first}` : a.lastName;
@@ -410,22 +412,24 @@ export function generateBibTeX(meta: CitationMetadata, citeKey?: string): string
   const titleFirstWord = (meta.title || "work").split(/\s+/)[0].toLowerCase().replace(/[^a-z0-9]/g, "");
   const key = citeKey || `${firstAuthorLast}${yearKey}${titleFirstWord}`;
 
+  // Values are stored brace-free; the emitter adds exactly one wrapping pair,
+  // so a corporate author keeps its protective inner pair ({{...}}).
   const fields: Array<[string, string | number | undefined]> = [
     ["author", authorBib || undefined],
-    ["title", meta.title ? `{${meta.title}}` : undefined],
-    ["journal", meta.journal ? `{${meta.journal}}` : undefined],
+    ["title", meta.title || undefined],
+    ["journal", meta.journal || undefined],
     ["year", meta.year],
     ["volume", meta.volume],
     ["number", meta.issue],
-    ["pages", meta.pages ? `{${meta.pages}}` : undefined],
-    ["publisher", meta.publisher ? `{${meta.publisher}}` : undefined],
-    ["doi", meta.doi],
-    ["url", meta.url],
+    ["pages", meta.pages || undefined],
+    ["publisher", meta.publisher || undefined],
+    ["doi", meta.doi || undefined],
+    ["url", meta.url || undefined],
   ];
 
   const fieldLines = fields
     .filter(([, val]) => val !== undefined && val !== "")
-    .map(([k, val]) => `  ${k} = {${String(val).replace(/[{}]/g, "")}},`)
+    .map(([k, val]) => `  ${k} = {${String(val)}},`)
     .join("\n");
 
   return `@${type}{${key},\n${fieldLines}\n}`;
