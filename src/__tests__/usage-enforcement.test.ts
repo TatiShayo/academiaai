@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const { mockFrom, mockEq, mockSingle, mockUpsert } = vi.hoisted(() => ({
+const { mockFrom, mockEq, mockSingle, mockUpsert, mockRpc } = vi.hoisted(() => ({
   mockFrom: vi.fn(),
   mockEq: vi.fn(),
   mockSingle: vi.fn(),
   mockUpsert: vi.fn(),
+  mockRpc: vi.fn(),
 }));
 
 const chain = {
@@ -12,11 +13,13 @@ const chain = {
   eq: mockEq.mockReturnThis(),
   single: mockSingle,
   upsert: mockUpsert.mockReturnThis(),
+  rpc: mockRpc,
 };
 
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: vi.fn(() => ({
     from: mockFrom.mockReturnValue(chain),
+    rpc: mockRpc,
   })),
 }));
 
@@ -181,21 +184,18 @@ describe("Usage Limits Enforcement", () => {
   });
 
   describe("incrementUsage", () => {
-    it("increases count by 1", async () => {
-      mockSingle.mockResolvedValueOnce({
-        data: { doc_count: 1, month: getTestMonth(), plan: "free" },
-      });
-
-      mockUpsert.mockReturnValueOnce({
-        select: vi.fn().mockReturnThis(),
-        eq: vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({
-          data: { doc_count: 2, month: getTestMonth(), plan: "free" },
-        }),
+    it("increases count by 1 via the atomic RPC", async () => {
+      mockRpc.mockResolvedValue({
+        data: [{ doc_count: 2, plan: "free" }],
+        error: null,
       });
 
       const result = await incrementUsage("user-6");
       expect(result.docCount).toBe(2);
+      // The increment must go through the RPC, not a read-modify-write.
+      expect(mockRpc).toHaveBeenCalledWith("increment_usage", expect.objectContaining({
+        p_user_id: "user-6",
+      }));
     });
   });
 });

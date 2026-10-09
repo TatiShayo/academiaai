@@ -55,30 +55,26 @@ export async function getUsage(userId: string): Promise<UsageData> {
 
 export async function incrementUsage(userId: string): Promise<UsageData> {
   const supabase = createAdminClient();
-  const current = await getUsage(userId);
   const currentMonth = getMonth();
 
-  const newCount = current.docCount + 1;
+  // Atomic increment via RPC. The previous read-modify-write (getUsage then
+  // upsert with doc_count + 1) raced under concurrency: two simultaneous
+  // requests both read N and both wrote N+1, so one increment was lost — a
+  // free-quota bypass. The RPC increments under the database's row lock in a
+  // single statement and rolls the counter on month change.
+  const { data, error } = await supabase.rpc("increment_usage", {
+    p_user_id: userId,
+    p_month: currentMonth,
+  });
 
-  const { data } = await supabase
-    .from("user_usage")
-    .upsert(
-      {
-        user_id: userId,
-        doc_count: newCount,
-        month: currentMonth,
-        plan: current.plan,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id" }
-    )
-    .select("doc_count, month, plan")
-    .single();
+  if (error) throw error;
+
+  const row = Array.isArray(data) ? data[0] : data;
 
   return {
-    docCount: data?.doc_count ?? newCount,
-    month: data?.month ?? currentMonth,
-    plan: data?.plan ?? current.plan,
+    docCount: typeof row?.doc_count === "number" ? row.doc_count : 0,
+    month: currentMonth,
+    plan: row?.plan === "pro" || row?.plan === "unlocked" ? row.plan : "free",
   };
 }
 
