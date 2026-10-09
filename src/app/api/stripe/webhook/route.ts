@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe, isStripeConfigured } from "@/lib/stripe";
 import { headers } from "next/headers";
 import { setPro, setFree, unlockSingle } from "@/lib/usage";
+import { recordStripeEvent } from "@/lib/stripe-events";
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -25,6 +26,24 @@ export async function POST(request: NextRequest) {
       sig,
       process.env.STRIPE_WEBHOOK_SECRET ?? ""
     );
+
+    // Idempotency guard: record the event id before any side effect. A
+    // duplicate (unique violation 23505) means a Stripe retry or a replay —
+    // ack and stop before provisioning the plan twice.
+    if (event.id) {
+      try {
+        const { duplicate } = await recordStripeEvent(event.id, event.type);
+        if (duplicate) {
+          return NextResponse.json({ received: true, duplicate: true });
+        }
+      } catch (ledgerError) {
+        console.error("Webhook idempotency check failed:", ledgerError);
+        return NextResponse.json(
+          { error: "Webhook handler failed. Please check server logs." },
+          { status: 500 }
+        );
+      }
+    }
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
