@@ -7,8 +7,16 @@ export async function POST(request: NextRequest) {
   const body = await request.text();
   const sig = (await headers()).get("stripe-signature") ?? "";
 
+  // Fail closed: acking with 200 when Stripe is not configured makes Stripe
+  // mark the event as delivered and never retry it — a customer pays, the
+  // event is silently dropped, and the plan is never provisioned. Return 503
+  // so Stripe retries once billing is configured.
   if (!isStripeConfigured()) {
-    return NextResponse.json({ received: true });
+    console.error("Stripe webhook received but STRIPE_SECRET_KEY is not configured");
+    return NextResponse.json(
+      { error: "Stripe is not configured; event will be retried" },
+      { status: 503 }
+    );
   }
 
   try {
