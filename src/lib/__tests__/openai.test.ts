@@ -16,10 +16,6 @@ describe('mockHumanize', () => {
     const result = mockHumanize(text, 'Subtle');
 
     // Subtle should replace at most 3 matches. Let's check replacement logic:
-    // 1. furthermore -> also
-    // 2. consequently -> as a result
-    // 3. moreover -> in addition
-    // 4. additionally -> plus (should NOT be replaced because limit of 3 is reached)
     expect(result.humanizedText).toContain('also');
     expect(result.humanizedText).toContain('as a result');
     expect(result.humanizedText).toContain('in addition');
@@ -170,7 +166,7 @@ describe('mockPlagiarism', () => {
     expect(result.flaggedSentences.length).toBe(2);
     expect(result.flaggedSentences[0].sentence).toBe('This is a very long sentence that has more than twenty-five characters.');
     expect(result.flaggedSentences[0].risk).toBe('High');
-    
+
     expect(result.flaggedSentences[1].sentence).toBe('This is defined as a very long sentence that is also flagged.');
     expect(result.flaggedSentences[1].risk).toBe('Medium');
 

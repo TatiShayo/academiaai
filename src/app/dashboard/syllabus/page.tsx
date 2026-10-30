@@ -27,7 +27,6 @@ export default function SyllabusOrganizerPage() {
   const [draftSaved, setDraftSaved] = useState(false);
   const [editingWeekIdx, setEditingWeekIdx] = useState<number | null>(null);
 
-  // Load draft on mount
   useEffect(() => {
     const savedDraft = getDraft<{
       inputText: string;
@@ -87,7 +86,7 @@ export default function SyllabusOrganizerPage() {
   const handleSaveDoc = () => {
     if (!syllabus) return;
     const title = saveTitle.trim() || `Syllabus - ${syllabus.courseTitle}`;
-    
+
     // Convert syllabus object to readable text format for library catalog
     let formattedText = `# ${syllabus.courseTitle}\n\n${syllabus.description}\n\n`;
     syllabus.weeks.forEach((w) => {

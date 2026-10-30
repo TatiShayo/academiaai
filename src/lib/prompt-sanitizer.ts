@@ -29,10 +29,8 @@ const INVISIBLE_AND_BIDI_REGEX = /[\u200B-\u200D\uFEFF\u202A-\u202E\u2066-\u2069
 export function sanitizeUntrustedInput(text: string): string {
   if (!text || typeof text !== "string") return "";
 
-  // 1. Remove invisible / BiDi characters
   let clean = text.replace(INVISIBLE_AND_BIDI_REGEX, "");
 
-  // 2. Escape or replace any occurrences of internal boundary tokens
   for (const marker of DANGEROUS_MARKERS) {
     if (clean.includes(marker)) {
       const neutralized = marker

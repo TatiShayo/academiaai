@@ -38,7 +38,6 @@ export default function SettingsPage() {
     }
   };
 
-  // Fetch API keys once on mount; state updates happen asynchronously.
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchKeys(); }, []);
 

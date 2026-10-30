@@ -98,7 +98,6 @@ export function extractSentences(text: string): string[] {
     const s = rawSentences[i].trim();
     if (!s) continue;
 
-    // Check if the sentence ended with an abbreviation
     const lastWordMatch = s.match(/([a-zA-Z]+)\.$/);
     if (lastWordMatch && ABBREVIATIONS.has(lastWordMatch[1].toLowerCase()) && i + 1 < rawSentences.length) {
       // Merge with next sentence
@@ -211,35 +210,29 @@ export function computeReadabilityScores(metrics: TextMetrics): ReadabilityScore
   const C = complexWords;
   const chars = charactersNoSpaces;
 
-  // 1. Flesch Reading Ease
   // 206.835 - 1.015 * (W / S) - 84.6 * (L / W)
   const freRaw = 206.835 - 1.015 * (W / S) - 84.6 * (L / W);
   const fleschReadingEase = Number(Math.max(0, Math.min(100, freRaw)).toFixed(1));
   const fleschReadingEaseLabel = getFleschReadingEaseLabel(fleschReadingEase);
 
-  // 2. Flesch-Kincaid Grade Level
   // 0.39 * (W / S) + 11.8 * (L / W) - 15.59
   const fkglRaw = 0.39 * (W / S) + 11.8 * (L / W) - 15.59;
   const fleschKincaidGradeLevel = Number(Math.max(0, fkglRaw).toFixed(1));
 
-  // 3. Gunning Fog Index
   // 0.4 * ((W / S) + 100 * (C / W))
   const fogRaw = 0.4 * (W / S + 100 * (C / W));
   const gunningFogIndex = Number(Math.max(0, fogRaw).toFixed(1));
 
-  // 4. Coleman-Liau Index
   // 0.0588 * (chars / W * 100) - 0.296 * (S / W * 100) - 15.8
   const lettersPer100 = (chars / W) * 100;
   const sentencesPer100 = (S / W) * 100;
   const clRaw = 0.0588 * lettersPer100 - 0.296 * sentencesPer100 - 15.8;
   const colemanLiauIndex = Number(Math.max(0, clRaw).toFixed(1));
 
-  // 5. Automated Readability Index (ARI)
   // 4.71 * (chars / W) + 0.5 * (W / S) - 21.43
   const ariRaw = 4.71 * (chars / W) + 0.5 * (W / S) - 21.43;
   const automatedReadabilityIndex = Number(Math.max(0, ariRaw).toFixed(1));
 
-  // 6. SMOG Index
   // 1.0430 * sqrt(30 * (C / S)) + 3.1291
   let smogIndex = 0;
   if (S >= 3) {

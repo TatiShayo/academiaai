@@ -16,7 +16,6 @@ export default function HumanizerPage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
 
-  // Load draft on mount
   useEffect(() => {
     const savedDraft = getDraft<{ inputText: string; humanizedText: string; level: 'Subtle' | 'Balanced' | 'Aggressive'; beforeScore: number | null; afterScore: number | null }>('humanizer', {
       inputText: '',
@@ -89,7 +88,7 @@ export default function HumanizerPage() {
     if (!humanizedText.trim()) return;
     const title = saveTitle.trim() || `Humanized Draft - ${new Date().toLocaleDateString()}`;
     const wordCount = humanizedText.split(/\s+/).filter(Boolean).length;
-    
+
     saveDocument({
       title,
       tool: 'Humanizer',
@@ -205,7 +204,7 @@ export default function HumanizerPage() {
               </span>
             )}
           </div>
-          
+
           <div className="flex-1 w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-4 text-sm text-slate-200 overflow-y-auto leading-relaxed whitespace-pre-wrap select-text font-sans">
             {humanizedText ? (
               humanizedText

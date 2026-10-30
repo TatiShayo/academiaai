@@ -44,7 +44,6 @@ describe("Document Revision State Machine & Lifecycle", () => {
       wordCount: 3,
     });
 
-    // Update document with new processedText
     const updated = saveDocument({
       ...doc,
       processedText: "Elevated words v2 (rigorous)",

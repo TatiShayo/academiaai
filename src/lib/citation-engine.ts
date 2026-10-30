@@ -59,7 +59,6 @@ export function parseAuthors(authorsInput: string | string[] | Author[] | undefi
       return { lastName: last, firstName, middleName };
     }
 
-    // Format is "FirstName MiddleName LastName"
     const names = part.split(/\s+/).filter(Boolean);
     if (names.length === 1) {
       return { lastName: names[0] };
@@ -544,7 +543,6 @@ export function parseRawCitation(rawText: string): CitationMetadata {
   const text = rawText.trim();
   const meta: CitationMetadata = { title: "" };
 
-  // Check if it's BibTeX
   if (text.startsWith("@") && text.includes("{")) {
     const parsed = parseBibTeX(text);
     if (parsed.length > 0) return parsed[0];

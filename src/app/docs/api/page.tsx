@@ -87,8 +87,6 @@ export default function ApiDocsPage() {
   -H "Content-Type: application/json" \\
   -d '{"source": "Journal article title or DOI", "format": "APA"}'
 
-# format: "APA" | "MLA" | "Chicago" | "Harvard"
-
 # Response
 {
   "source": "Journal article title or DOI",

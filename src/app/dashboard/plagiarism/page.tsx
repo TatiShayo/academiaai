@@ -21,7 +21,6 @@ export default function PlagiarismScannerPage() {
   const [draftSaved, setDraftSaved] = useState(false);
   const [selectedFlagIdx, setSelectedFlagIdx] = useState<number | null>(null);
 
-  // Load draft on mount
   useEffect(() => {
     const savedDraft = getDraft<{
       inputText: string;
@@ -89,7 +88,7 @@ export default function PlagiarismScannerPage() {
     if (!inputText.trim()) return;
     const title = saveTitle.trim() || `Plagiarism Scan - ${new Date().toLocaleDateString()}`;
     const wordCount = inputText.split(/\s+/).filter(Boolean).length;
-    
+
     saveDocument({
       title,
       tool: 'Plagiarism Scanner',
@@ -131,13 +130,13 @@ export default function PlagiarismScannerPage() {
         {sentences.map((sentence, idx) => {
           const trimmed = sentence.trim();
           const match = highlights.find(h => trimmed.includes(h.sentence) || h.sentence.includes(trimmed));
-          
+
           if (match) {
             const isSelected = selectedFlagIdx === match.idx;
             const bgClass = match.risk === 'High' 
               ? isSelected ? 'bg-red-500/35 border-b-2 border-red-500 text-white cursor-pointer' : 'bg-red-500/15 border-b border-red-500/50 cursor-pointer hover:bg-red-500/25'
               : isSelected ? 'bg-amber-500/35 border-b-2 border-amber-500 text-white cursor-pointer' : 'bg-amber-500/15 border-b border-amber-500/50 cursor-pointer hover:bg-amber-500/25';
-            
+
             return (
               <span
                 key={idx}
@@ -265,7 +264,7 @@ export default function PlagiarismScannerPage() {
           {/* Risk Score Gauge */}
           <div className="bg-[#111118] border border-[#1e1e2e] rounded-xl p-5 flex flex-col items-center justify-center text-center">
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider font-mono mb-4">Integrity Index</span>
-            
+
             {riskScore !== null ? (
               <div className="space-y-4 w-full">
                 {/* Radial metric representation */}

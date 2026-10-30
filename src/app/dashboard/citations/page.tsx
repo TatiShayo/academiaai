@@ -43,7 +43,6 @@ export default function CitationsPage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
 
-  // Load draft on mount
   useEffect(() => {
     const savedDraft = getDraft<{
       fields: CitationFields;
@@ -150,7 +149,7 @@ export default function CitationsPage() {
   const handleSaveDoc = () => {
     if (!generatedCitation.trim()) return;
     const title = saveTitle.trim() || `Citation - ${fields.title || fields.rawSource.slice(0, 30) || 'Source Reference'}`;
-    
+
     saveDocument({
       title,
       tool: 'Citation Generator',
@@ -201,7 +200,7 @@ export default function CitationsPage() {
         <div className="lg:col-span-7 bg-[#111118] border border-[#1e1e2e] rounded-xl p-5 flex flex-col h-[560px]">
           <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider font-mono">Citation Metadata</span>
-            
+
             {/* Mode switch */}
             <div className="flex bg-[#09090f] border border-[#1e1e2e] rounded-lg p-0.5">
               <button
@@ -413,7 +412,7 @@ export default function CitationsPage() {
         {/* Output rendering - Right */}
         <div className="lg:col-span-5 bg-[#111118] border border-[#1e1e2e] rounded-xl p-5 flex flex-col h-[560px]">
           <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider font-mono mb-4">Compiled Citation</span>
-          
+
           <div className="flex-1 w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-5 flex items-center justify-center text-center">
             {generatedCitation ? (
               <div className="space-y-4 w-full">

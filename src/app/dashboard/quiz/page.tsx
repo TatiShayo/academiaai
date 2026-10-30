@@ -23,7 +23,6 @@ export default function QuizGeneratorPage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
 
-  // Load draft on mount
   useEffect(() => {
     const savedDraft = getDraft<{
       inputText: string;
@@ -102,7 +101,7 @@ export default function QuizGeneratorPage() {
 
   const handleSubmitQuiz = () => {
     if (questions.length === 0 || isSubmitted) return;
-    
+
     let correctCount = 0;
     questions.forEach((q) => {
       if (selectedAnswers[q.id] === q.correctAnswer) {
@@ -124,8 +123,7 @@ export default function QuizGeneratorPage() {
   const handleSaveDoc = () => {
     if (questions.length === 0) return;
     const title = saveTitle.trim() || `Quiz Test - ${new Date().toLocaleDateString()}`;
-    
-    // Save quiz in database
+
     let formattedText = `### Academic Quiz Evaluation\n`;
     if (score) {
       formattedText += `Evaluation Score: ${score.correct}/${score.total} (${Math.round((score.correct/score.total)*100)}%)\n\n`;
@@ -274,7 +272,7 @@ export default function QuizGeneratorPage() {
                           {q.options.map((opt, oIdx) => {
                             const isSelected = selectedIdx === oIdx;
                             const isCorrect = q.correctAnswer === oIdx;
-                            
+
                             // Style calculation based on state
                             let optionClass = 'border-[#1e1e2e] bg-[#09090f] hover:border-slate-700';
                             let indicatorClass = 'border-slate-600';

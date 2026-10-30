@@ -15,7 +15,6 @@ export default function EnhancerPage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
 
-  // Load draft on mount
   useEffect(() => {
     const savedDraft = getDraft<{
       inputText: string;
@@ -90,7 +89,7 @@ export default function EnhancerPage() {
     if (!enhancedText.trim()) return;
     const title = saveTitle.trim() || `Enhanced Draft (${level}) - ${new Date().toLocaleDateString()}`;
     const wordCount = enhancedText.split(/\s+/).filter(Boolean).length;
-    
+
     saveDocument({
       title,
       tool: 'Academic Enhancer',
@@ -200,7 +199,7 @@ export default function EnhancerPage() {
               </span>
             )}
           </div>
-          
+
           <div className="flex-1 w-full bg-[#09090f] border border-[#1e1e2e] rounded-lg p-4 text-sm text-slate-200 overflow-y-auto leading-relaxed whitespace-pre-wrap select-text font-sans">
             {enhancedText ? (
               enhancedText

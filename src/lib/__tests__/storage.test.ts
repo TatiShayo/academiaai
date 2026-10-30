@@ -160,7 +160,6 @@ describe('storage utility library', () => {
       }));
       store['academiaai_activity_logs'] = JSON.stringify(initialLogs);
 
-      // Add one more
       addActivityLog('Academic Enhancer', 'Enhanced text', 'PhD level');
 
       const logs = getActivityLogs();
